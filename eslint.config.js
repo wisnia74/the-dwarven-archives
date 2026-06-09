@@ -33,7 +33,7 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
-    name: "typescript-specific",
+    name: "typescript",
   },
   {
     extends: [
@@ -43,6 +43,6 @@ export default defineConfig([
       eslintPluginReactX.configs["recommended-typescript"],
     ],
     files: ["**/*.{tsx}"],
-    name: "react-specific",
+    name: "react",
   },
 ]);
