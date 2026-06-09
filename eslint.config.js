@@ -19,6 +19,7 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    name: "base",
   },
   {
     extends: [
@@ -32,6 +33,7 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    name: "typescript-specific",
   },
   {
     extends: [
@@ -41,5 +43,6 @@ export default defineConfig([
       eslintPluginReactX.configs["recommended-typescript"],
     ],
     files: ["**/*.{tsx}"],
+    name: "react-specific",
   },
 ]);

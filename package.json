@@ -8,6 +8,7 @@
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:inspect": "eslint --inspect-config",
     "preview": "vite preview",
     "type:check": "tsc -b"
   },
