@@ -1,12 +1,14 @@
+import { Button, Group, Stepper } from "@mantine/core";
 import { useState } from "react";
-import { Stepper, Button, Group } from "@mantine/core";
 
 export const App = () => {
   const [active, setActive] = useState(1);
-  const nextStep = () =>
+  const nextStep = () => {
     setActive((current) => (current < 3 ? current + 1 : current));
-  const prevStep = () =>
+  };
+  const prevStep = () => {
     setActive((current) => (current > 0 ? current - 1 : current));
+  };
 
   return (
     <>
