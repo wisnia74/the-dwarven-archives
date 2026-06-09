@@ -1,1 +1,1 @@
-pnpm lint:check && pnpm format:check
+pnpm type:check && pnpm lint:check && pnpm format:check && pnpm build
