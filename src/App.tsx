@@ -13,13 +13,13 @@ export const App = () => {
   return (
     <>
       <Stepper active={active} onStepClick={setActive}>
-        <Stepper.Step label="First step" description="Create an account">
+        <Stepper.Step description="Create an account" label="First step">
           Step 1 content: Create an account
         </Stepper.Step>
-        <Stepper.Step label="Second step" description="Verify email">
+        <Stepper.Step description="Verify email" label="Second step">
           Step 2 content: Verify email
         </Stepper.Step>
-        <Stepper.Step label="Final step" description="Get full access">
+        <Stepper.Step description="Get full access" label="Final step">
           Step 3 content: Get full access
         </Stepper.Step>
         <Stepper.Completed>
@@ -28,7 +28,7 @@ export const App = () => {
       </Stepper>
 
       <Group justify="center" mt="xl">
-        <Button variant="default" onClick={prevStep}>
+        <Button onClick={prevStep} variant="default">
           Back
         </Button>
         <Button onClick={nextStep}>Next step</Button>

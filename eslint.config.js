@@ -1,39 +1,45 @@
-import js from "@eslint/js";
-import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
-import tseslint from "typescript-eslint";
+import jseslint from "@eslint/js";
+import eslintPluginPerfectionist from "eslint-plugin-perfectionist";
+import eslintPluginReactDOM from "eslint-plugin-react-dom";
+import eslintPluginReactHooks from "eslint-plugin-react-hooks";
+import eslintPluginReactRefresh from "eslint-plugin-react-refresh";
+import eslintPluginReactX from "eslint-plugin-react-x";
 import { defineConfig, globalIgnores } from "eslint/config";
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
   globalIgnores(["dist"]),
   {
-    files: ["**/*.{ts,tsx}"],
     extends: [
-      js.configs.recommended,
-      tseslint.configs.strictTypeChecked,
-      tseslint.configs.stylisticTypeChecked,
-      reactDom.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-      reactX.configs["recommended-typescript"],
+      jseslint.configs.recommended,
+      eslintPluginPerfectionist.configs["recommended-alphabetical"],
     ],
+    files: ["**/*.{js,ts,tsx}"],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    extends: [
+      tseslint.configs.strictTypeChecked,
+      tseslint.configs.stylisticTypeChecked,
+    ],
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
       parserOptions: {
         project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
     },
-    plugins: {
-      "simple-import-sort": simpleImportSort,
-    },
-    rules: {
-      "simple-import-sort/imports": "error",
-      "simple-import-sort/exports": "error",
-    },
+  },
+  {
+    extends: [
+      eslintPluginReactDOM.configs.recommended,
+      eslintPluginReactHooks.configs.flat.recommended,
+      eslintPluginReactRefresh.configs.vite,
+      eslintPluginReactX.configs["recommended-typescript"],
+    ],
+    files: ["**/*.{tsx}"],
   },
 ]);
