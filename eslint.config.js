@@ -4,6 +4,7 @@ import eslintPluginReactDOM from "eslint-plugin-react-dom";
 import eslintPluginReactHooks from "eslint-plugin-react-hooks";
 import eslintPluginReactRefresh from "eslint-plugin-react-refresh";
 import eslintPluginReactX from "eslint-plugin-react-x";
+import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import tseslint from "typescript-eslint";
@@ -20,6 +21,20 @@ export default defineConfig([
       globals: globals.browser,
     },
     name: "base",
+    plugins: { "unused-imports": eslintPluginUnusedImports },
+    rules: {
+      "no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        {
+          args: "after-used",
+          argsIgnorePattern: "^_",
+          vars: "all",
+          varsIgnorePattern: "^_",
+        },
+      ],
+    },
   },
   {
     extends: [
@@ -34,6 +49,9 @@ export default defineConfig([
       },
     },
     name: "typescript",
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   },
   {
     extends: [
