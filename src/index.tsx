@@ -17,7 +17,7 @@ const router = createBrowserRouter([
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <MantineProvider>
+    <MantineProvider defaultColorScheme="auto">
       <RouterProvider router={router} />
     </MantineProvider>
   </StrictMode>,
