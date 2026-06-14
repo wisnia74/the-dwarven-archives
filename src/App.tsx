@@ -1,3 +1,1 @@
-import { AppShell } from "./AppShell";
-
-export const App = () => <AppShell />;
+export const App = () => <div>test</div>;
