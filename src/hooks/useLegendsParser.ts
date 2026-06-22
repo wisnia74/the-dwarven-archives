@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
 
-import WorldParser from "../workers/WorldParser?worker";
+import LegendsParser from "../workers/LegendsParser?worker";
 
-export const useWorldParser = () => {
+export const useLegendsParser = () => {
   const [isParsing, setIsParsing] = useState(false);
   const [parsedWorld, setParsedWorld] = useState<null | Record<
     string,
@@ -13,14 +13,15 @@ export const useWorldParser = () => {
     (world: File) => {
       setIsParsing(true);
 
-      const worldParser = new WorldParser();
+      const legendsParser = new LegendsParser();
 
-      worldParser.postMessage(world);
+      legendsParser.postMessage(world);
 
-      worldParser.onmessage = (ev: MessageEvent<Record<string, unknown>>) => {
+      legendsParser.onmessage = (ev: MessageEvent<Record<string, unknown>>) => {
         console.log({ ev });
         setParsedWorld(ev.data);
         setIsParsing(false);
+        legendsParser.terminate();
       };
     },
     [setIsParsing],

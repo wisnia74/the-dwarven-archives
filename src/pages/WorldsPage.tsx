@@ -1,8 +1,8 @@
 import { AppShell } from "../components";
-import { useWorldParser } from "../hooks";
+import { useLegendsParser } from "../hooks";
 
 export const WorldsPage = () => {
-  const { isParsing, parsedWorld, parseWorld } = useWorldParser();
+  const { isParsing, parsedWorld, parseWorld } = useLegendsParser();
   if (parsedWorld) {
     console.log({ parsedWorld });
   }

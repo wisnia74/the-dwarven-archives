@@ -1,1 +1,1 @@
-export * from "./useWorldParser";
+export * from "./useLegendsParser";
