@@ -16,7 +16,7 @@ export default defineConfig([
       jseslint.configs.recommended,
       eslintPluginPerfectionist.configs["recommended-alphabetical"],
     ],
-    files: ["**/*.{js,ts,tsx}"],
+    files: ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}"],
     languageOptions: {
       globals: globals.browser,
     },
@@ -41,7 +41,8 @@ export default defineConfig([
       tseslint.configs.strictTypeChecked,
       tseslint.configs.stylisticTypeChecked,
     ],
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    ignores: ["eslint.config.js", "prettier.config.js"],
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.node.json", "./tsconfig.app.json"],
@@ -62,5 +63,19 @@ export default defineConfig([
     ],
     files: ["**/*.{tsx}"],
     name: "react",
+  },
+  {
+    files: ["**/*.{jsx,tsx}"],
+    name: "react",
+    rules: {
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
+    },
   },
 ]);

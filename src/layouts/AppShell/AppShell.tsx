@@ -1,10 +1,8 @@
 import { Burger, AppShell as MantineAppShell } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import React from "react";
+import { Outlet } from "react-router";
 
-type AppShellProps = React.PropsWithChildren;
-
-export const AppShell = ({ children }: AppShellProps) => {
+export const AppShell = () => {
   const [opened, { toggle }] = useDisclosure();
 
   return (
@@ -25,7 +23,9 @@ export const AppShell = ({ children }: AppShellProps) => {
 
       <MantineAppShell.Navbar>Navbar</MantineAppShell.Navbar>
 
-      <MantineAppShell.Main>{children}</MantineAppShell.Main>
+      <MantineAppShell.Main>
+        <Outlet />
+      </MantineAppShell.Main>
     </MantineAppShell>
   );
 };
