@@ -15,6 +15,7 @@ export const Header = ({
           hiddenFrom="sm"
           onClick={toggleNavbarOpened}
           opened={isNavbarOpened}
+          px="0"
           size="sm"
         />
         <p>Logo</p>
