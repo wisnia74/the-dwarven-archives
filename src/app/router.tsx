@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router";
 
-import { AppShell } from "../layouts";
-import { Worlds } from "../pages";
+import { AppShell } from "@/layouts/AppShell";
+import { Worlds } from "@/pages/Worlds";
 
 export const router = createBrowserRouter([
   /* eslint-disable perfectionist/sort-jsx-props, perfectionist/sort-objects */

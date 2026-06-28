@@ -8,6 +8,9 @@ export default defineConfig({
     exclude: ["@sqlite.org/sqlite-wasm"],
   },
   plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
+  resolve: {
+    tsconfigPaths: true,
+  },
   server: {
     headers: {
       "Cross-Origin-Embedder-Policy": "require-corp",
