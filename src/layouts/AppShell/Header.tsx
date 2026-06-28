@@ -18,7 +18,7 @@ export const Header = ({
           px="0"
           size="sm"
         />
-        <p>Logo</p>
+        <p>The Amber Codex</p>
       </Group>
     </MantineAppShell.Header>
   );
