@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import LegendsParser from "../workers/LegendsParser?worker";
+import LegendsParser from "@/workers/LegendsParser?worker";
 
 export const useLegendsParser = () => {
   const [isParsing, setIsParsing] = useState(false);

@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import SQLiteWASM from "../workers/SQLiteWASM?worker";
+import SQLiteWASM from "@/workers/SQLiteWASM?worker";
 
 export const useSQLiteWASM = () => {
   const init = useCallback(() => {

@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router";
 
-import { AppShell } from "@/layouts/AppShell";
+import { AppShell } from "@/layouts/AppShell/AppShell";
 import { Artifacts } from "@/pages/Artifacts";
 import { Chronicles } from "@/pages/Chronicles";
 import { Civilizations } from "@/pages/Civilizations";

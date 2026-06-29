@@ -1,5 +1,5 @@
-import { useLegendsParser } from "../hooks";
-import { useSQLiteWASM } from "../hooks/useSQLiteWASM";
+import { useLegendsParser } from "@/hooks/useLegendsParser";
+import { useSQLiteWASM } from "@/hooks/useSQLiteWASM";
 
 export const Worlds = () => {
   const { isParsing, parsedWorld, parseWorld } = useLegendsParser();
