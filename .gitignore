@@ -1,3 +1,5 @@
+*.legends.xml
+
 # Logs
 logs
 *.log
