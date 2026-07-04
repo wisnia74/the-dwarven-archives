@@ -18,7 +18,21 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Paths */
+    "paths": {
+      "~/*": ["./*"],
+      "@/tasks/*": ["./tasks/*"],
+      "@/utils/*": ["./utils/*"]
+    }
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "tasks/**/*",
+    "utils/**/*",
+    "dirname.ts",
+    "eslint.config.js",
+    "prettier.config.js",
+    "vite.config.ts"
+  ]
 }

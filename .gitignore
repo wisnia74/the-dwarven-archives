@@ -1,6 +1,8 @@
-# Un-gzipped .xml files (legends or not)
+# .env files
+*.env
+
+# Un-gzipped .xml files
 *.xml
-*.legends.xml
 
 # Logs
 logs

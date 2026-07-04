@@ -10,13 +10,13 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist", "legends"]),
+  globalIgnores(["dist"]),
   {
     extends: [
       jseslint.configs.recommended,
       eslintPluginPerfectionist.configs["recommended-alphabetical"],
     ],
-    files: ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}"],
+    files: ["**/*.{js,ts,tsx,.d.ts}"],
     languageOptions: {
       globals: globals.browser,
     },
@@ -41,7 +41,7 @@ export default defineConfig([
       tseslint.configs.strictTypeChecked,
       tseslint.configs.stylisticTypeChecked,
     ],
-    files: ["**/*.{js,jsx,ts,tsx}"],
+    files: ["**/*.{ts,tsx,.d.ts}"],
     ignores: ["eslint.config.js", "prettier.config.js"],
     languageOptions: {
       parserOptions: {
@@ -51,6 +51,14 @@ export default defineConfig([
     },
     name: "typescript",
     rules: {
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
@@ -63,19 +71,5 @@ export default defineConfig([
     ],
     files: ["**/*.{tsx}"],
     name: "react",
-  },
-  {
-    files: ["**/*.{jsx,tsx}"],
-    name: "react",
-    rules: {
-      "@typescript-eslint/no-misused-promises": [
-        "error",
-        {
-          checksVoidReturn: {
-            attributes: false,
-          },
-        },
-      ],
-    },
   },
 ]);

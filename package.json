@@ -13,7 +13,8 @@
     "lint:inspect": "eslint --inspect-config",
     "prepare": "husky",
     "preview": "vite preview",
-    "type:check": "tsc -b"
+    "type:check": "tsc -b",
+    "tasks": "tsx --tsconfig ./tsconfig.node.json --env-file=./tasks/.env ./tasks/taskList.ts"
   },
   "dependencies": {
     "@mantine/core": "^9.3.1",
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@clack/prompts": "^1.6.0",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
@@ -49,6 +51,7 @@
     "prettier": "^3.8.3",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12"
+    "vite": "^8.0.12",
+    "zod": "^4.4.3"
   }
 }
