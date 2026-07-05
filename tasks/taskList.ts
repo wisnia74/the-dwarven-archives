@@ -1,9 +1,13 @@
 import { intro, isCancel, log, note, outro, select } from "@clack/prompts";
 
+import compressLegendsFile from "./compressLegendsFile";
+import decompressLegendsFile from "./decompressLegendsFile";
 import importLegendsFile from "./importLegendsFile";
 import { type Task, TASK_STATUS } from "./task";
 
 const tasks: Record<string, Task> = {
+  compressLegendsFile,
+  decompressLegendsFile,
   importLegendsFile,
 };
 

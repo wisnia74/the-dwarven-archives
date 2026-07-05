@@ -1,4 +1,4 @@
-import { cancel, progress, type ProgressOptions } from "@clack/prompts";
+import { cancel, progress } from "@clack/prompts";
 
 export const TASK_STATUS = {
   CANCELLED: "CANCELLED",
@@ -26,30 +26,32 @@ type AdvanceProgressCallback = (
   createLabel: (currentProgress: number, maxProgress: number) => string,
 ) => void;
 
-export const trackProgress = async ({
-  endMessage,
+export const trackProgress = async <T>({
+  createEndMessage,
   exec,
   maxProgress,
-  progressOpts,
-  startMessage,
 }: {
-  endMessage?: string;
-  exec: (advanceProgress: AdvanceProgressCallback) => Promise<void> | void;
+  createEndMessage: () => Promise<string> | string;
+  exec: (advanceProgress: AdvanceProgressCallback) => Promise<T>;
   maxProgress: number;
-  progressOpts?: ProgressOptions;
-  startMessage?: string;
-}) => {
+}): Promise<T> => {
   let currentProgress = 0;
 
-  const prog = progress({ ...progressOpts, max: maxProgress });
+  const prog = progress({
+    indicator: "timer",
+    max: maxProgress,
+    style: "block",
+  });
 
-  prog.start(startMessage);
+  prog.start();
 
-  await exec((delta, createLabel) => {
+  const result = await exec((delta, createLabel) => {
     currentProgress += delta;
 
     prog.advance(delta, createLabel(currentProgress, maxProgress));
   });
 
-  prog.stop(endMessage);
+  prog.stop(await createEndMessage());
+
+  return result;
 };

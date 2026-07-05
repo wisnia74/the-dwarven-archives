@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { __dirname } from "~/dirname";
-import { copyFile } from "~/utils/copyFile";
+import { bytesToMB, copyFile } from "~/utils/files";
 
 import { Config } from "./config";
 import {
@@ -25,94 +25,98 @@ const run: Task["run"] = async () => {
   try {
     const config = Config.parse(process.env);
 
-    const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-    const legendsFiles = dirContent.filter((x) => x.endsWith(".xml"));
+    const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
+    const dfDirLegendsFiles = dfDirContent
+      .filter((x) => x.endsWith(".xml"))
+      .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
-    if (!legendsFiles.length) {
+    if (!dfDirLegendsFiles.length) {
       taskCancelsItself(
         `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
       );
       return TASK_STATUS.CANCELLED;
     }
 
-    const legendsFilesStats = await Promise.all(
-      legendsFiles.map(async (filename): Promise<[string, Stats]> => {
-        const filepath = path.join(config.DWARF_FORTRESS_DIR, filename);
-        return [filepath, await fs.stat(filepath)];
-      }),
+    const dfDirLegendsFilesStats = await Promise.all(
+      dfDirLegendsFiles.map(
+        async (filepath): Promise<[string, Stats]> => [
+          filepath,
+          await fs.stat(filepath),
+        ],
+      ),
     );
 
-    const selectedLegendsFile = await select({
+    const selectedDfDirLegendsFile = await select({
       message: "Select legends file:",
-      options: legendsFilesStats.map<Option<string>>(([filepath, stats]) => ({
-        hint: `${(stats.size / 1024 / 1024).toFixed(2)}MB, last modified ${new Date(
-          stats.mtimeMs,
-        ).toLocaleString()}`,
-        label: filepath,
-        value: filepath,
-      })),
+      options: dfDirLegendsFilesStats.map<Option<string>>(
+        ([filepath, stats]) => ({
+          hint: `${(stats.size / 1024 / 1024).toFixed(2)}MB, last modified ${new Date(
+            stats.mtimeMs,
+          ).toLocaleString()}`,
+          label: filepath,
+          value: filepath,
+        }),
+      ),
     });
 
-    if (isCancel(selectedLegendsFile)) {
+    if (isCancel(selectedDfDirLegendsFile)) {
       userCancelsTask();
       return TASK_STATUS.CANCELLED;
     }
 
     note(
-      '1. Not existing directories specified in filepath will get created\n\
-      2. Files ending with ".legends.xml" are gitignored by default',
+      'Not existing directories specified in the filepath will get created\
+      \nFiles matching "*.legends.xml" are ignored by git by default',
+      "",
+      { format: (line) => `- ${line}` },
     );
-    const destFilepath = await text({
+    const dest = await text({
       initialValue: path.join(
         __dirname,
         "legends",
-        path.basename(selectedLegendsFile).replace("xml", "legends.xml"),
+        path.basename(selectedDfDirLegendsFile).replace("xml", "legends.xml"),
       ),
-      message: "Destination filepath:",
+      message: "Copy as:",
     });
 
-    if (isCancel(destFilepath)) {
+    if (isCancel(dest)) {
       userCancelsTask();
       return TASK_STATUS.CANCELLED;
     }
 
-    const fileExists = await fs
-      .access(destFilepath, fs.constants.F_OK)
+    const destExists = await fs
+      .access(dest, fs.constants.F_OK)
       .then(() => true)
       .catch(() => false);
 
-    if (fileExists) {
-      taskCancelsItself(`${destFilepath} already exists`);
+    if (destExists) {
+      taskCancelsItself(`${dest} already exists`);
       return TASK_STATUS.CANCELLED;
     }
 
     // if dirname exists this is a no-op, but it doesn't throw
-    await fs.mkdir(path.dirname(destFilepath), {
+    await fs.mkdir(path.dirname(dest), {
       recursive: true,
     });
 
     // selectedLegendsFile comes from legendsFilesStats so .find() is always truthy here
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const selectedLegendsFileStats = legendsFilesStats.find(
-      ([filepath]) => filepath === selectedLegendsFile,
+    const { size: selectedDfDirLegendsFileSize } = dfDirLegendsFilesStats.find(
+      ([filepath]) => filepath === selectedDfDirLegendsFile,
     )![1];
-    const fileSizeMb = selectedLegendsFileStats.size / 1024 / 1024;
 
     await trackProgress({
-      endMessage: `File copied to ${destFilepath} (${fileSizeMb.toFixed(2)}MB)`,
-      exec: async (advanceProgress) => {
-        await copyFile(selectedLegendsFile, destFilepath, (chunk) => {
+      createEndMessage: () =>
+        `File copied as ${dest} (${bytesToMB(selectedDfDirLegendsFileSize).toFixed(2)}MB)`,
+      exec: (advanceProgress) =>
+        copyFile(selectedDfDirLegendsFile, dest, (chunk) => {
           advanceProgress(
-            chunk.length / 1024 / 1024,
+            chunk.length,
             (currentProgress, maxProgress) =>
-              `${currentProgress.toFixed(2)}/${maxProgress.toFixed(2)}MB`,
+              `${bytesToMB(currentProgress).toFixed(2)}/${bytesToMB(maxProgress).toFixed(2)}MB`,
           );
-        });
-      },
-      maxProgress: fileSizeMb,
-      progressOpts: {
-        style: "block",
-      },
+        }),
+      maxProgress: selectedDfDirLegendsFileSize,
     });
   } catch (err) {
     log.error(err instanceof Error ? err.message : JSON.stringify(err));
