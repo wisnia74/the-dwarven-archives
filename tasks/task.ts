@@ -26,7 +26,7 @@ type AdvanceProgressCallback = (
   createLabel: (currentProgress: number, maxProgress: number) => string,
 ) => void;
 
-export const measureProgress = async ({
+export const trackProgress = async ({
   endMessage,
   exec,
   maxProgress,

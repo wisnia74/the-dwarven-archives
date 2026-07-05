@@ -11,7 +11,7 @@ const taskList = async (timesExecuted = 1) => {
   intro(timesExecuted > 1 ? "Choose another task:" : "Task list");
 
   if (timesExecuted === 2) {
-    note("Ctrl+C, Ctrl+D or ESC to exit");
+    note("Press Ctrl+C, Ctrl+D or ESC to exit");
   }
 
   const selectedTask = await select({
