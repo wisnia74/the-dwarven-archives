@@ -40,12 +40,10 @@ const run: Task["run"] = async () => {
     }
 
     const compressedLegendsFilesStats = await Promise.all(
-      compressedLegendsFiles.map(
-        async (filepath): Promise<[string, Stats]> => [
-          filepath,
-          await fs.stat(filepath),
-        ],
-      ),
+      compressedLegendsFiles.map(async (filepath): Promise<[string, Stats]> => [
+        filepath,
+        await fs.stat(filepath),
+      ]),
     );
 
     const selectedCompressedLegendsFile = await select({

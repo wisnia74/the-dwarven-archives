@@ -38,12 +38,10 @@ const run: Task["run"] = async () => {
     }
 
     const dfDirLegendsFilesStats = await Promise.all(
-      dfDirLegendsFiles.map(
-        async (filepath): Promise<[string, Stats]> => [
-          filepath,
-          await fs.stat(filepath),
-        ],
-      ),
+      dfDirLegendsFiles.map(async (filepath): Promise<[string, Stats]> => [
+        filepath,
+        await fs.stat(filepath),
+      ]),
     );
 
     const selectedDfDirLegendsFile = await select({

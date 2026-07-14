@@ -40,12 +40,10 @@ const run: Task["run"] = async () => {
     }
 
     const importedLegendsFilesStats = await Promise.all(
-      importedLegendsFiles.map(
-        async (filepath): Promise<[string, Stats]> => [
-          filepath,
-          await fs.stat(filepath),
-        ],
-      ),
+      importedLegendsFiles.map(async (filepath): Promise<[string, Stats]> => [
+        filepath,
+        await fs.stat(filepath),
+      ]),
     );
 
     const selectedImportedLegendsFile = await select({
