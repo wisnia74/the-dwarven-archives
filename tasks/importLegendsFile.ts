@@ -1,4 +1,4 @@
-import { isCancel, log, note, type Option, select, text } from "@clack/prompts";
+import { isCancel, log, note, select, text } from "@clack/prompts";
 import { type Stats } from "fs";
 import fs from "fs/promises";
 import path from "path";
@@ -25,39 +25,37 @@ const run: Task["run"] = async () => {
   try {
     const config = Config.parse(process.env);
 
-    const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-    const dfDirLegendsFiles = dfDirContent
+    const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
+    const files = dirContent
       .filter((x) => x.endsWith(".xml"))
       .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
-    if (!dfDirLegendsFiles.length) {
+    if (!files.length) {
       taskCancelsItself(
         `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
       );
       return TASK_STATUS.CANCELLED;
     }
 
-    const dfDirLegendsFilesStats = await Promise.all(
-      dfDirLegendsFiles.map(async (filepath): Promise<[string, Stats]> => [
+    const stats = await Promise.all(
+      files.map(async (filepath): Promise<[string, Stats]> => [
         filepath,
         await fs.stat(filepath),
       ]),
     );
 
-    const selectedDfDirLegendsFile = await select({
+    const selectedFile = await select({
       message: "Select legends file:",
-      options: dfDirLegendsFilesStats.map<Option<string>>(
-        ([filepath, stats]) => ({
-          hint: `${(stats.size / 1024 / 1024).toFixed(2)}MB, last modified ${new Date(
-            stats.mtimeMs,
-          ).toLocaleString()}`,
-          label: filepath,
-          value: filepath,
-        }),
-      ),
+      options: stats.map(([filepath, stats]) => ({
+        hint: `${(stats.size / 1024 / 1024).toFixed(2)}MB, last modified ${new Date(
+          stats.mtimeMs,
+        ).toLocaleString()}`,
+        label: filepath,
+        value: filepath,
+      })),
     });
 
-    if (isCancel(selectedDfDirLegendsFile)) {
+    if (isCancel(selectedFile)) {
       userCancelsTask();
       return TASK_STATUS.CANCELLED;
     }
@@ -72,7 +70,7 @@ const run: Task["run"] = async () => {
       initialValue: path.join(
         __dirname,
         "legends",
-        path.basename(selectedDfDirLegendsFile).replace("xml", "legends.xml"),
+        path.basename(selectedFile).replace("xml", "legends.xml"),
       ),
       message: "Copy as:",
     });
@@ -97,24 +95,21 @@ const run: Task["run"] = async () => {
       recursive: true,
     });
 
-    // selectedLegendsFile comes from legendsFilesStats so .find() is always truthy here
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const { size: selectedDfDirLegendsFileSize } = dfDirLegendsFilesStats.find(
-      ([filepath]) => filepath === selectedDfDirLegendsFile,
-    )![1];
+    const { size } = stats.find(([filepath]) => filepath === selectedFile)![1];
 
     await trackProgress({
       createEndMessage: () =>
-        `File copied as ${dest} (${bytesToMB(selectedDfDirLegendsFileSize).toFixed(2)}MB)`,
+        `File copied as ${dest} (${bytesToMB(size).toFixed(2)}MB)`,
       exec: (advanceProgress) =>
-        copyFile(selectedDfDirLegendsFile, dest, (chunk) => {
+        copyFile(selectedFile, dest, (chunk) => {
           advanceProgress(
             chunk.length,
             (currentProgress, maxProgress) =>
               `${bytesToMB(currentProgress).toFixed(2)}/${bytesToMB(maxProgress).toFixed(2)}MB`,
           );
         }),
-      maxProgress: selectedDfDirLegendsFileSize,
+      maxProgress: size,
     });
   } catch (err) {
     log.error(err instanceof Error ? err.message : JSON.stringify(err));
