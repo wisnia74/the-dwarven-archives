@@ -1,8 +1,8 @@
+# Legends dir
+legends/
+
 # .env files
 *.env
-
-# Un-gzipped .xml files
-*.xml
 
 # Logs
 logs
