@@ -1,22 +1,19 @@
+import type { Stats } from "fs";
+
 import { isCancel, log, note, select, text } from "@clack/prompts";
-import { type Stats } from "fs";
 import fs from "fs/promises";
 import path from "path";
+import z from "zod";
 
 import { __dirname } from "~/dirname";
-import { bytesToMB, copyFile } from "~/utils/files";
 
 import { Config } from "./config";
-import {
-  type Task,
-  TASK_STATUS,
-  taskCancelsItself,
-  trackProgress,
-  userCancelsTask,
-} from "./task";
+import { type Task, TASK_STATUS } from "./task";
+import { cancelTask, trackProgress } from "./utils";
+import { bytesToMB, copyFile } from "./utils";
 
 const hint: Task["hint"] =
-  "Requires DWARF_FORTRESS_DIR supplied in scripts/.env";
+  "requires correct DWARF_FORTRESS_DIR supplied in tasks/.env, imports to legends/";
 
 const label: Task["label"] =
   "Import legends file from Dwarf Fortress directory";
@@ -31,9 +28,10 @@ const run: Task["run"] = async () => {
       .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
     if (!files.length) {
-      taskCancelsItself(
-        `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
-      );
+      cancelTask({
+        reason: `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
+        trigger: "self",
+      });
       return TASK_STATUS.CANCELLED;
     }
 
@@ -56,7 +54,7 @@ const run: Task["run"] = async () => {
     });
 
     if (isCancel(selectedFile)) {
-      userCancelsTask();
+      cancelTask({ trigger: "user" });
       return TASK_STATUS.CANCELLED;
     }
 
@@ -76,7 +74,7 @@ const run: Task["run"] = async () => {
     });
 
     if (isCancel(dest)) {
-      userCancelsTask();
+      cancelTask({ trigger: "user" });
       return TASK_STATUS.CANCELLED;
     }
 
@@ -86,11 +84,10 @@ const run: Task["run"] = async () => {
       .catch(() => false);
 
     if (destExists) {
-      taskCancelsItself(`${dest} already exists`);
+      cancelTask({ reason: `${dest} already exists`, trigger: "self" });
       return TASK_STATUS.CANCELLED;
     }
 
-    // if dirname exists this is a no-op, but it doesn't throw
     await fs.mkdir(path.dirname(dest), {
       recursive: true,
     });
@@ -112,8 +109,12 @@ const run: Task["run"] = async () => {
       maxProgress: size,
     });
   } catch (err) {
-    log.error(err instanceof Error ? err.message : JSON.stringify(err));
-    taskCancelsItself("error");
+    log.error(
+      err instanceof z.ZodError ? z.prettifyError(err)
+      : err instanceof Error ? err.message
+      : String(err),
+    );
+    cancelTask({ trigger: "error" });
   }
 };
 

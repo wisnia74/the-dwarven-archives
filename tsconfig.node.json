@@ -22,14 +22,11 @@
 
     /* Paths */
     "paths": {
-      "~/*": ["./*"],
-      "@/tasks/*": ["./tasks/*"],
-      "@/utils/*": ["./utils/*"]
+      "~/*": ["./*"]
     }
   },
   "include": [
     "tasks/**/*",
-    "utils/**/*",
     "dirname.ts",
     "eslint.config.js",
     "prettier.config.js",

@@ -1,4 +1,8 @@
 import { intro, isCancel, log, note, outro, select } from "@clack/prompts";
+import fs from "fs/promises";
+import path from "path";
+
+import { __dirname } from "~/dirname";
 
 import compressLegendsFile from "./compressLegendsFile";
 import decompressLegendsFile from "./decompressLegendsFile";
@@ -41,4 +45,7 @@ const taskList = async (timesExecuted = 1) => {
   return taskList(timesExecuted + 1);
 };
 
-void taskList();
+void (async () => {
+  await fs.mkdir(path.join(__dirname, "legends"), { recursive: true });
+  void taskList();
+})();

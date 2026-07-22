@@ -1,21 +1,16 @@
 import type { Stats } from "fs";
 
-import { isCancel, log, note, select, text } from "@clack/prompts";
-import fs from "fs/promises";
+import { isCancel, log, select, text } from "@clack/prompts";
+import fs, { rm } from "fs/promises";
 import path from "path";
 
 import { __dirname } from "~/dirname";
-import { bytesToMB, gzip } from "~/utils/files";
 
-import {
-  type Task,
-  TASK_STATUS,
-  taskCancelsItself,
-  trackProgress,
-  userCancelsTask,
-} from "./task";
+import { type Task, TASK_STATUS } from "./task";
+import { cancelTask, trackProgress } from "./utils";
+import { bytesToMB, gzip } from "./utils";
 
-const hint: Task["hint"] = `Compresses a single "*.legends.xml" file from ${path.join(__dirname, "legends")}`;
+const hint: Task["hint"] = `uses gzip`;
 
 const label: Task["label"] = "Compress imported legends file";
 
@@ -30,7 +25,10 @@ const run: Task["run"] = async () => {
       .map((x) => path.join(__dirname, "legends", x));
 
     if (!legendsFiles.length) {
-      taskCancelsItself(`no compressable legends files found in ${dir}`);
+      cancelTask({
+        reason: `no compressable legends files found in ${dir}`,
+        trigger: "self",
+      });
       return TASK_STATUS.CANCELLED;
     }
 
@@ -42,7 +40,7 @@ const run: Task["run"] = async () => {
     );
 
     const selectedFile = await select({
-      message: "Select imported legends file:",
+      message: "Select legends file:",
       options: stats.map(([filepath, stats]) => ({
         hint: `${(stats.size / 1024 / 1024).toFixed(2)}MB, last modified ${new Date(
           stats.mtimeMs,
@@ -53,24 +51,17 @@ const run: Task["run"] = async () => {
     });
 
     if (isCancel(selectedFile)) {
-      userCancelsTask();
+      cancelTask({ trigger: "user" });
       return TASK_STATUS.CANCELLED;
     }
 
-    note(
-      'Not existing directories specified in the filepath will get created\
-      \nFiles matching "*.legends.xml.gz" are tracked by git using git-lfs by default',
-      "",
-      { format: (line) => `- ${line}` },
-    );
-
     const dest = await text({
       initialValue: selectedFile.concat(".gz"),
-      message: "Compress as:",
+      message: "Compress to:",
     });
 
     if (isCancel(dest)) {
-      userCancelsTask();
+      cancelTask({ trigger: "user" });
       return TASK_STATUS.CANCELLED;
     }
 
@@ -80,11 +71,10 @@ const run: Task["run"] = async () => {
       .catch(() => false);
 
     if (destExists) {
-      taskCancelsItself(`${dest} already exists`);
+      cancelTask({ reason: `${dest} already exists`, trigger: "self" });
       return TASK_STATUS.CANCELLED;
     }
 
-    // if dirname exists this is a no-op, but it doesn't throw
     await fs.mkdir(path.dirname(dest), {
       recursive: true,
     });
@@ -108,9 +98,11 @@ const run: Task["run"] = async () => {
         }),
       maxProgress: size,
     });
+
+    await rm(selectedFile);
   } catch (err) {
-    log.error(err instanceof Error ? err.message : JSON.stringify(err));
-    taskCancelsItself("error");
+    log.error(err instanceof Error ? err.message : String(err));
+    cancelTask({ trigger: "error" });
   }
 };
 

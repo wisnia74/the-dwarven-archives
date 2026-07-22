@@ -7,7 +7,12 @@ import eslintPluginReactX from "eslint-plugin-react-x";
 import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
+import path from "path";
 import tseslint from "typescript-eslint";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig([
   globalIgnores(["dist"]),
@@ -24,6 +29,7 @@ export default defineConfig([
     plugins: { "unused-imports": eslintPluginUnusedImports },
     rules: {
       "no-unused-vars": "off",
+      "perfectionist/sort-modules": "off",
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
         "warn",
@@ -46,7 +52,7 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: __dirname,
       },
     },
     name: "typescript",
