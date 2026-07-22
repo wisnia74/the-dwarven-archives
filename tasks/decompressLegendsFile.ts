@@ -86,7 +86,7 @@ const run: Task["run"] = async () => {
       createEndMessage: async () => {
         const { size: destFileSize } = await fs.stat(dest);
 
-        return `File decompressed as ${dest} (${bytesToMB(size).toFixed(2)}MB -> ${bytesToMB(destFileSize).toFixed(2)}MB)`;
+        return `File decompressed to ${dest} (${bytesToMB(size).toFixed(2)}MB -> ${bytesToMB(destFileSize).toFixed(2)}MB)`;
       },
       exec: async (advanceProgress) =>
         gunzip(selectedFile, dest, (chunk) => {

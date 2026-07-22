@@ -86,7 +86,7 @@ const run: Task["run"] = async () => {
       createEndMessage: async () => {
         const { size: destFileSize } = await fs.stat(dest);
 
-        return `File compressed as ${dest} (${bytesToMB(size).toFixed(2)}MB -> ${bytesToMB(destFileSize).toFixed(2)}MB)`;
+        return `File compressed to ${dest} (${bytesToMB(size).toFixed(2)}MB -> ${bytesToMB(destFileSize).toFixed(2)}MB)`;
       },
       exec: async (advanceProgress) =>
         gzip(selectedFile, dest, (chunk) => {

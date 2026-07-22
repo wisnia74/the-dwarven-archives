@@ -70,7 +70,7 @@ const run: Task["run"] = async () => {
         "legends",
         path.basename(selectedFile).replace("xml", "legends.xml"),
       ),
-      message: "Copy as:",
+      message: "Copy to:",
     });
 
     if (isCancel(dest)) {
@@ -97,7 +97,7 @@ const run: Task["run"] = async () => {
 
     await trackProgress({
       createEndMessage: () =>
-        `File copied as ${dest} (${bytesToMB(size).toFixed(2)}MB)`,
+        `File copied to ${dest} (${bytesToMB(size).toFixed(2)}MB)`,
       exec: (advanceProgress) =>
         copyFile(selectedFile, dest, (chunk) => {
           advanceProgress(
