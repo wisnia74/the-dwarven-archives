@@ -14,7 +14,7 @@
     "prepare": "husky",
     "preview": "vite preview",
     "type:check": "tsc -b",
-    "tasks": "tsx --tsconfig ./tsconfig.node.json --env-file=./tasks/.env ./tasks"
+    "scripts": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts"
   },
   "dependencies": {
     "@mantine/core": "^9.4.1",
