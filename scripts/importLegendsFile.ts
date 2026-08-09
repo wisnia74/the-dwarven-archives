@@ -50,7 +50,7 @@ const run: Script["run"] = async () => {
     const selectedFile = await select({
       message: "Select file:",
       options: stats.map(([filepath, stats]) => ({
-        hint: `${(stats.size / 1024 / 1024).toFixed(2)}MB, last modified ${new Date(
+        hint: `${bytesToMB(stats.size)}, last modified ${new Date(
           stats.mtimeMs,
         ).toLocaleString()}`,
         label: filepath,
