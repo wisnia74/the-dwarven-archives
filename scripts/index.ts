@@ -8,12 +8,14 @@ import compressLegendsFile from "./compressLegendsFile";
 import decompressLegendsFile from "./decompressLegendsFile";
 import importLegendsFile from "./importLegendsFile";
 import { type Script, SCRIPT_STATUS } from "./script";
+import transformLegendsFileIntoJson from "./transformLegendsFileIntoJson";
 import { cancelScript } from "./utils";
 
 const scripts: Record<string, Script> = {
   compressLegendsFile,
   decompressLegendsFile,
   importLegendsFile,
+  transformLegendsFileIntoJson,
 };
 
 const scriptList = async () => {
