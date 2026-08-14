@@ -1,4 +1,4 @@
-import { intro, isCancel, outro, select } from "@clack/prompts";
+import { autocomplete, intro, isCancel, outro } from "@clack/prompts";
 import fs from "fs/promises";
 import path from "path";
 
@@ -21,7 +21,7 @@ const scripts: Record<string, Script> = {
 const scriptList = async () => {
   intro("Scripts");
 
-  const selectedScript = await select({
+  const selectedScript = await autocomplete({
     message: "Select script:",
     options: Object.values(scripts).map((script) => ({
       hint: script.hint,
