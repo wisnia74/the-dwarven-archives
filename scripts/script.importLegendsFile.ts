@@ -3,7 +3,7 @@ import type { Stats } from "fs";
 import { autocomplete, isCancel, log, spinner, text } from "@clack/prompts";
 import fs from "fs/promises";
 import path from "path";
-import z from "zod";
+import * as z from "zod";
 
 import { __dirname } from "~/dirname";
 
@@ -24,79 +24,93 @@ const label: Script["label"] =
   "Import legends file from Dwarf Fortress directory";
 
 const run: Script["run"] = async () => {
-  const copyProgress = spinner();
+  let config: z.infer<typeof Config> = { DWARF_FORTRESS_DIR: "" };
 
   try {
-    const config = Config.parse(process.env);
-
-    const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-    const files = dirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
-
-    if (!files.length) {
-      cancelScript({
-        reason: `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
-        trigger: "self",
-      });
-      return SCRIPT_STATUS.CANCELLED;
-    }
-
-    const stats = await Promise.all(
-      files.map(async (filepath): Promise<[string, Stats]> => [
-        filepath,
-        await fs.stat(filepath),
-      ]),
+    config = Config.parse(process.env);
+  } catch (err) {
+    log.error(
+      err instanceof z.ZodError ? z.prettifyError(err)
+      : err instanceof Error ? err.message
+      : String(err),
     );
-
-    const selectedFile = await autocomplete({
-      message: "Select file:",
-      options: stats
-        .sort(([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs)
-        .map(([filepath, stats]) => ({
-          hint: `${bytesToMB(stats.size)}, last modified ${new Date(
-            stats.mtimeMs,
-          ).toLocaleString()}`,
-          label: filepath,
-          value: { filepath, stats },
-        })),
+    cancelScript({
+      reason: `failed to parse .env config in scripts/`,
+      trigger: "self",
     });
+    return SCRIPT_STATUS.CANCELLED;
+  }
 
-    if (isCancel(selectedFile)) {
-      cancelScript({ trigger: "user" });
-      return SCRIPT_STATUS.CANCELLED;
-    }
+  const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
+  const files = dirContent
+    .filter((x) => x.endsWith(".xml"))
+    .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
-    const dest = await text({
-      initialValue: path.join(
-        __dirname,
-        "legends",
-        path.basename(selectedFile.filepath).replace("xml", "legends.xml"),
-      ),
-      message: "Copy to:",
+  if (!files.length) {
+    cancelScript({
+      reason: `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
+      trigger: "self",
     });
+    return SCRIPT_STATUS.CANCELLED;
+  }
 
-    if (isCancel(dest)) {
-      cancelScript({ trigger: "user" });
-      return SCRIPT_STATUS.CANCELLED;
-    }
+  const stats = await Promise.all(
+    files.map(async (filepath): Promise<[string, Stats]> => [
+      filepath,
+      await fs.stat(filepath),
+    ]),
+  );
 
-    const destExists = await fs
-      .access(dest, fs.constants.F_OK)
-      .then(() => true)
-      .catch(() => false);
+  const selectedFile = await autocomplete({
+    message: "Select file:",
+    options: stats
+      .sort(([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs)
+      .map(([filepath, stats]) => ({
+        hint: `${bytesToMB(stats.size)}, last modified ${new Date(
+          stats.mtimeMs,
+        ).toLocaleString()}`,
+        label: filepath,
+        value: { filepath, stats },
+      })),
+  });
 
-    if (destExists) {
-      cancelScript({ reason: `${dest} already exists`, trigger: "self" });
-      return SCRIPT_STATUS.CANCELLED;
-    }
+  if (isCancel(selectedFile)) {
+    cancelScript({ trigger: "user" });
+    return SCRIPT_STATUS.CANCELLED;
+  }
 
-    await fs.mkdir(path.dirname(dest), {
-      recursive: true,
-    });
+  const dest = await text({
+    initialValue: path.join(
+      __dirname,
+      "legends",
+      path.basename(selectedFile.filepath).replace("xml", "legends.xml"),
+    ),
+    message: "Copy to:",
+  });
 
-    copyProgress.start("Copying...");
+  if (isCancel(dest)) {
+    cancelScript({ trigger: "user" });
+    return SCRIPT_STATUS.CANCELLED;
+  }
 
+  const destExists = await fs
+    .access(dest, fs.constants.F_OK)
+    .then(() => true)
+    .catch(() => false);
+
+  if (destExists) {
+    cancelScript({ reason: `${dest} already exists`, trigger: "self" });
+    return SCRIPT_STATUS.CANCELLED;
+  }
+
+  await fs.mkdir(path.dirname(dest), {
+    recursive: true,
+  });
+
+  const copyProgress = spinner();
+  copyProgress.start("Copying...");
+
+  try {
     const { timeTakenMs } = await measureTimeTaken(() =>
       copyFile(selectedFile.filepath, dest),
     );
@@ -105,13 +119,9 @@ const run: Script["run"] = async () => {
       `File copied to ${dest} (${bytesToMB(selectedFile.stats.size)}) in ${msToSeconds(timeTakenMs)}`,
     );
   } catch (err) {
-    copyProgress.cancel();
-    log.error(
-      err instanceof z.ZodError ? z.prettifyError(err)
-      : err instanceof Error ? err.message
-      : String(err),
-    );
+    copyProgress.cancel(err instanceof Error ? err.message : String(err));
     cancelScript({ trigger: "error" });
+    return SCRIPT_STATUS.CANCELLED;
   }
 };
 

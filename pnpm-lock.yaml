@@ -39,6 +39,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.8.1)
+      '@nodable/base-output-builder':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@nodable/flexible-xml-parser':
         specifier: ^1.11.2
         version: 1.11.2

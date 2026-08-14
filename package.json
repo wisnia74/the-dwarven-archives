@@ -29,6 +29,7 @@
     "@babel/core": "^7.29.7",
     "@clack/prompts": "^1.7.0",
     "@eslint/js": "^10.0.1",
+    "@nodable/base-output-builder": "^2.0.0",
     "@nodable/flexible-xml-parser": "^1.11.2",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
