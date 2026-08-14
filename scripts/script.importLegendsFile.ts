@@ -1,6 +1,6 @@
 import type { Stats } from "fs";
 
-import { isCancel, log, select, spinner, text } from "@clack/prompts";
+import { autocomplete, isCancel, log, spinner, text } from "@clack/prompts";
 import fs from "fs/promises";
 import path from "path";
 import z from "zod";
@@ -49,15 +49,17 @@ const run: Script["run"] = async () => {
       ]),
     );
 
-    const selectedFile = await select({
+    const selectedFile = await autocomplete({
       message: "Select file:",
-      options: stats.map(([filepath, stats]) => ({
-        hint: `${bytesToMB(stats.size)}, last modified ${new Date(
-          stats.mtimeMs,
-        ).toLocaleString()}`,
-        label: filepath,
-        value: { filepath, stats },
-      })),
+      options: stats
+        .sort(([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs)
+        .map(([filepath, stats]) => ({
+          hint: `${bytesToMB(stats.size)}, last modified ${new Date(
+            stats.mtimeMs,
+          ).toLocaleString()}`,
+          label: filepath,
+          value: { filepath, stats },
+        })),
     });
 
     if (isCancel(selectedFile)) {
