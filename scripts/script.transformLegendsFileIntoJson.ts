@@ -21,6 +21,8 @@ const label: Script["label"] =
   "Transform imported legends file into JSON schema";
 
 const run: Script["run"] = async () => {
+  const transformProgress = spinner();
+
   try {
     const dir = path.join(__dirname, "legends");
     const dirContent = await fs.readdir(dir, {
@@ -91,8 +93,6 @@ const run: Script["run"] = async () => {
       },
     });
 
-    const transformProgress = spinner();
-
     transformProgress.start("Transforming...");
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -110,6 +110,7 @@ const run: Script["run"] = async () => {
       `File transformed to ${dest} (${bytesToMB(selectedFile.stats.size)}) in ${msToSeconds(timeTakenMs)}`,
     );
   } catch (err) {
+    transformProgress.cancel();
     log.error(err instanceof Error ? err.message : String(err));
     cancelScript({ trigger: "error" });
   }

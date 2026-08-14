@@ -3,45 +3,44 @@ import type { Stats } from "fs";
 import { isCancel, log, select, spinner, text } from "@clack/prompts";
 import fs from "fs/promises";
 import path from "path";
-import z from "zod";
 
 import { __dirname } from "~/dirname";
 
-import { Config } from "./config";
 import { type Script, SCRIPT_STATUS } from "./script";
 import {
   bytesToMB,
   cancelScript,
-  copyFile,
+  gunzip,
   measureTimeTaken,
   msToSeconds,
 } from "./utils";
 
-const hint: Script["hint"] =
-  "requires correct DWARF_FORTRESS_DIR supplied in scripts/.env";
+const hint: Script["hint"] = `uses gunzip`;
 
-const label: Script["label"] =
-  "Import legends file from Dwarf Fortress directory";
+const label: Script["label"] = "Decompress imported legends file";
 
 const run: Script["run"] = async () => {
+  const gunzipProgress = spinner();
+
   try {
-    const config = Config.parse(process.env);
+    const dir = path.join(__dirname, "legends");
+    const dirContent = await fs.readdir(dir, {
+      recursive: true,
+    });
+    const legendsFiles = dirContent
+      .filter((x) => x.endsWith("legends.xml.gz"))
+      .map((x) => path.join(__dirname, "legends", x));
 
-    const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-    const files = dirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
-
-    if (!files.length) {
+    if (!legendsFiles.length) {
       cancelScript({
-        reason: `no legends files found in ${config.DWARF_FORTRESS_DIR}`,
+        reason: `no decompressable legends files found in ${dir}`,
         trigger: "self",
       });
       return SCRIPT_STATUS.CANCELLED;
     }
 
     const stats = await Promise.all(
-      files.map(async (filepath): Promise<[string, Stats]> => [
+      legendsFiles.map(async (filepath): Promise<[string, Stats]> => [
         filepath,
         await fs.stat(filepath),
       ]),
@@ -64,12 +63,8 @@ const run: Script["run"] = async () => {
     }
 
     const dest = await text({
-      initialValue: path.join(
-        __dirname,
-        "legends",
-        path.basename(selectedFile.filepath).replace("xml", "legends.xml"),
-      ),
-      message: "Copy to:",
+      initialValue: selectedFile.filepath.slice(0, -3),
+      message: "Decompress to:",
     });
 
     if (isCancel(dest)) {
@@ -91,23 +86,20 @@ const run: Script["run"] = async () => {
       recursive: true,
     });
 
-    const copyProgress = spinner();
-
-    copyProgress.start("Copying...");
+    gunzipProgress.start("Decompressing...");
 
     const { timeTakenMs } = await measureTimeTaken(() =>
-      copyFile(selectedFile.filepath, dest),
+      gunzip(selectedFile.filepath, dest),
     );
 
-    copyProgress.stop(
-      `File copied to ${dest} (${bytesToMB(selectedFile.stats.size)}) in ${msToSeconds(timeTakenMs)}`,
+    const { size: destFileSize } = await fs.stat(dest);
+
+    gunzipProgress.stop(
+      `File decompressed to ${dest} in ${msToSeconds(timeTakenMs)} (${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`,
     );
   } catch (err) {
-    log.error(
-      err instanceof z.ZodError ? z.prettifyError(err)
-      : err instanceof Error ? err.message
-      : String(err),
-    );
+    gunzipProgress.cancel();
+    log.error(err instanceof Error ? err.message : String(err));
     cancelScript({ trigger: "error" });
   }
 };

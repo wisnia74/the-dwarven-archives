@@ -4,11 +4,11 @@ import path from "path";
 
 import { __dirname } from "~/dirname";
 
-import compressLegendsFile from "./compressLegendsFile";
-import decompressLegendsFile from "./decompressLegendsFile";
-import importLegendsFile from "./importLegendsFile";
 import { type Script, SCRIPT_STATUS } from "./script";
-import transformLegendsFileIntoJson from "./transformLegendsFileIntoJson";
+import compressLegendsFile from "./script.compressLegendsFile";
+import decompressLegendsFile from "./script.decompressLegendsFile";
+import importLegendsFile from "./script.importLegendsFile";
+import transformLegendsFileIntoJson from "./script.transformLegendsFileIntoJson";
 import { cancelScript } from "./utils";
 
 const scripts: Record<string, Script> = {

@@ -20,6 +20,8 @@ const hint: Script["hint"] = `uses gzip`;
 const label: Script["label"] = "Compress imported legends file";
 
 const run: Script["run"] = async () => {
+  const gzipProgress = spinner();
+
   try {
     const dir = path.join(__dirname, "legends");
     const dirContent = await fs.readdir(dir, {
@@ -84,8 +86,6 @@ const run: Script["run"] = async () => {
       recursive: true,
     });
 
-    const gzipProgress = spinner();
-
     gzipProgress.start("Compressing...");
 
     const { timeTakenMs } = await measureTimeTaken(() =>
@@ -98,6 +98,7 @@ const run: Script["run"] = async () => {
       `File compressed to ${dest} in ${msToSeconds(timeTakenMs)} (${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`,
     );
   } catch (err) {
+    gzipProgress.cancel();
     log.error(err instanceof Error ? err.message : String(err));
     cancelScript({ trigger: "error" });
   }
