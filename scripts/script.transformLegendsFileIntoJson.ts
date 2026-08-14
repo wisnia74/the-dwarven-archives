@@ -15,6 +15,7 @@ import {
   msToSeconds,
 } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizerStream";
+
 const hint: Script["hint"] = "";
 
 const label: Script["label"] =
