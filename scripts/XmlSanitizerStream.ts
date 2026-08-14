@@ -2,7 +2,7 @@ import iconv from "iconv-lite";
 import { Transform, type TransformCallback } from "stream";
 
 /**
- * Custom Transform Stream to strip illegal XML 1.0 control characters
+ * Custom Transform Stream to strip top level `<df_world>` tag and illegal XML 1.0 control characters
  */
 export class XmlSanitizerStream extends Transform {
   protected encoding: iconv.Encoding;
@@ -27,7 +27,10 @@ export class XmlSanitizerStream extends Transform {
   ) {
     callback(
       null,
-      iconv.decode(chunk, this.encoding).replace(this.illegalXmlChars, ""),
+      iconv
+        .decode(chunk, this.encoding)
+        .replace(/<.?df_world>/g, "")
+        .replace(this.illegalXmlChars, ""),
     );
   }
 }

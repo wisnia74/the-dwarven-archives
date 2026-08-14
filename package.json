@@ -31,6 +31,7 @@
     "@eslint/js": "^10.0.1",
     "@nodable/base-output-builder": "^2.0.0",
     "@nodable/flexible-xml-parser": "^1.11.2",
+    "@nodable/sequential-stream-builder": "^2.0.0",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.13.3",

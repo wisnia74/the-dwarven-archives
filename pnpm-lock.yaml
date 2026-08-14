@@ -45,6 +45,9 @@ importers:
       '@nodable/flexible-xml-parser':
         specifier: ^1.11.2
         version: 1.11.2
+      '@nodable/sequential-stream-builder':
+        specifier: ^2.0.0
+        version: 2.0.0
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
         version: 0.2.3(@babel/core@7.29.7)(rolldown@1.2.4)(vite@8.2.1(@types/node@24.13.3)(sugarss@5.0.1(postcss@8.5.26)))
@@ -362,6 +365,9 @@ packages:
 
   '@nodable/flexible-xml-parser@1.11.2':
     resolution: {integrity: sha512-vX3/kbIuUKJ+CPNz1zR3TmV2xtOClcAdNoT4PfiGFo5hMmdfZHMD5RlORrAIvuWg52m3dD+O1FuuAC8Hmkd7yg==}
+
+  '@nodable/sequential-stream-builder@2.0.0':
+    resolution: {integrity: sha512-LSW+2LoPpNW0oKc8/V6dq1WihBOu5g4LJPefAfAHBilcteVTLxq7jZkiqX6OFOttxQ53EqAISVGel4cXQ8D8HQ==}
 
   '@oxc-project/types@0.144.0':
     resolution: {integrity: sha512-nuhZIOLuI6TFQ32I/WnUx+SCPY7SdSKwgnFHydAuoS1+Z4BRcaP+RRJmGzl9lw+0OFF7UmaESf7KQRXaNLHypg==}
@@ -1668,6 +1674,11 @@ snapshots:
       '@nodable/compact-builder': 2.0.0
       path-expression-matcher: 1.6.2
       xml-naming: 0.3.0
+
+  '@nodable/sequential-stream-builder@2.0.0':
+    dependencies:
+      '@nodable/base-output-builder': 2.0.0
+      path-expression-matcher: 1.6.2
 
   '@oxc-project/types@0.144.0': {}
 

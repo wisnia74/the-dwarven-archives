@@ -1,6 +1,7 @@
 import { autocomplete, isCancel, spinner, text } from "@clack/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
-import { createReadStream, type Stats } from "fs";
+import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
+import { createReadStream, createWriteStream, type Stats } from "fs";
 import fs from "fs/promises";
 import path from "path";
 
@@ -14,7 +15,6 @@ import {
   msToSeconds,
 } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizerStream";
-
 const hint: Script["hint"] = "";
 
 const label: Script["label"] =
@@ -86,7 +86,13 @@ const run: Script["run"] = async () => {
     recursive: true,
   });
 
+  const output = createWriteStream(dest, { encoding: "utf-8" });
+
   const parser = new XMLParser({
+    OutputBuilder: new SequentialStreamBuilderFactory({
+      space: 2,
+      stream: output,
+    }),
     skip: {
       declaration: true,
     },
@@ -96,8 +102,7 @@ const run: Script["run"] = async () => {
   transformProgress.start("Transforming...");
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { result, timeTakenMs } = await measureTimeTaken(() =>
+    const { timeTakenMs } = await measureTimeTaken(() =>
       parser.parseStream(
         createReadStream(selectedFile.filepath).pipe(
           new XmlSanitizerStream("cp437"),
@@ -105,10 +110,10 @@ const run: Script["run"] = async () => {
       ),
     );
 
-    await fs.writeFile(dest, JSON.stringify(result, null, 2));
+    const { size: destFileSize } = await fs.stat(dest);
 
     transformProgress.stop(
-      `File transformed to ${dest} (${bytesToMB(selectedFile.stats.size)}) in ${msToSeconds(timeTakenMs)}`,
+      `File transformed to ${dest} (${bytesToMB(destFileSize)}) in ${msToSeconds(timeTakenMs)}`,
     );
   } catch (err) {
     transformProgress.cancel(err instanceof Error ? err.message : String(err));
