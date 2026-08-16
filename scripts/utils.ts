@@ -49,11 +49,6 @@ export const msToSeconds = (val: number): string =>
 export const bytesToMB = (val: number): string =>
   `${(val / 1024 / 1024).toFixed(2)}MB`;
 
-/**
- * It averages 5s to copy 1GB file on my PC, if this ever becomes a bottleneck
- * of any sort, deep dive into positional I/O writes, with pre-allocated
- * destination file WITHOUT using worker threads
- */
 export const copyFile = async (
   source: PathLike,
   dest: PathLike,

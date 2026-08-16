@@ -2,7 +2,25 @@ import iconv from "iconv-lite";
 import { Transform, type TransformCallback } from "stream";
 
 /**
- * Custom Transform Stream to strip top level `<df_world>` tag and illegal XML 1.0 control characters
+ * Custom Transform Stream to strip top level tags like:
+ *
+ * ```
+ * <df_world>
+ * <regions>
+ * <underground_regions>
+ * <sites>
+ * <world_constructions>
+ * <artifacts>
+ * <historical_figures>
+ * <entity_populations>
+ * <entities>
+ * <historical_events>
+ * <historical_event_collections>
+ * <written_contents>
+ * <dance_forms>
+ * ```
+ *
+ * from DF legends file and illegal XML 1.0 control characters
  */
 export class XmlSanitizerStream extends Transform {
   protected encoding: iconv.Encoding;
@@ -29,7 +47,10 @@ export class XmlSanitizerStream extends Transform {
       null,
       iconv
         .decode(chunk, this.encoding)
-        .replace(/<.?df_world>/g, "")
+        .replace(
+          /<\/?(?:df_world|regions|underground_regions|sites|world_constructions|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|written_contents|dance_forms)>/g,
+          "",
+        )
         .replace(this.illegalXmlChars, ""),
     );
   }

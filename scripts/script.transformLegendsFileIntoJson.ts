@@ -91,7 +91,6 @@ const run: Script["run"] = async () => {
 
   const parser = new XMLParser({
     OutputBuilder: new SequentialStreamBuilderFactory({
-      space: 2,
       stream: output,
     }),
     skip: {
