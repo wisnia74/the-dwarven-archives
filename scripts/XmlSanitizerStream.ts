@@ -30,7 +30,7 @@ import { Transform, type TransformCallback } from "stream";
  *
  * For example, if {@link XmlSanitizerStream} receives a chunk of an XML file that stringifies to:
  * ```xml
- * <?xml version="1.0" encoding='CP437'?> *
+ * <?xml version="1.0" encoding='CP437'?>
  * <df_world>
  *   <regions>
  *     <region>...</region>
@@ -52,7 +52,7 @@ import { Transform, type TransformCallback } from "stream";
  *
  * This is necessary because {@link SequentialStreamBuilder} parses XML incrementally and **emits data one top-level element at a time**,
  * keeping memory usage close to `O(1)` (memory used is usually equal to the size of the largest top-level element in the document).
- * Without flattening these top-level parent tags, it would emit, for example, a single JavaScript object containing the entire
+ * Without flattening these top-level parent elements, it would emit, for example, a single JavaScript object containing the entire
  * `<historical_figures>` element. For large files, that element can wrap tens of thousands of `<historical_figure>` children.
  *
  * Besides significantly increasing memory usage, accumulating such a large wrapper element could cause {@link XmlSanitizerStream} itself
@@ -78,6 +78,11 @@ export class XmlSanitizerStream extends Transform {
     // eslint-disable-next-line no-control-regex
     /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu;
 
+  /**
+   * TODO: usage will mostly be `new XmlSanitizerStream('cp437')` because it is known beforehand that
+   * DF legends files are encoded in `cp437`, if it's ever beneficial consider making the logic
+   * read the actual encoding from the XML document and pass it to this class.
+   */
   constructor(encoding: iconv.Encoding) {
     super({
       readableObjectMode: true,

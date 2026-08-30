@@ -9,6 +9,7 @@ import compressLegendsFile from "./script.compressLegendsFile";
 import decompressLegendsFile from "./script.decompressLegendsFile";
 import importLegendsFile from "./script.importLegendsFile";
 import transformLegendsFileIntoJson from "./script.transformLegendsFileIntoJson";
+import transformLegendsFileIntoSchema from "./script.transformLegendsFileIntoSchema";
 import { cancelScript } from "./utils";
 
 const scripts: Record<string, Script> = {
@@ -16,6 +17,7 @@ const scripts: Record<string, Script> = {
   decompressLegendsFile,
   importLegendsFile,
   transformLegendsFileIntoJson,
+  transformLegendsFileIntoSchema,
 };
 
 const scriptList = async () => {

@@ -18,8 +18,7 @@ import { XmlSanitizerStream } from "./XmlSanitizerStream";
 
 const hint: Script["hint"] = "";
 
-const label: Script["label"] =
-  "Transform imported legends file into JSON schema";
+const label: Script["label"] = "Transform imported legends file into JSON";
 
 const run: Script["run"] = async () => {
   const dir = path.join(__dirname, "legends");
@@ -126,4 +125,4 @@ export default {
   hint,
   label,
   run,
-};
+} as Script;

@@ -109,4 +109,4 @@ export default {
   hint,
   label,
   run,
-};
+} as Script;

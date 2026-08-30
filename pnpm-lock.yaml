@@ -99,6 +99,9 @@ importers:
       iconv-lite:
         specifier: ^0.7.3
         version: 0.7.3
+      path-expression-matcher:
+        specifier: ^1.6.2
+        version: 1.6.2
       postcss:
         specifier: ^8.5.26
         version: 8.5.26
