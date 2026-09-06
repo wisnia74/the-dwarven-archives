@@ -89,9 +89,6 @@ export class XmlSanitizerStream extends Transform {
     /<\/?(?:df_world|regions|underground_regions|sites|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|historical_eras|written_contents|poetic_forms|musical_forms|dance_forms|world_constructions)>/g;
   private sanitizer: Sanitizer;
 
-  /**
-   * @param {}
-   */
   constructor(
     decoder: Decoder = iconv.decode,
     sanitizer: Sanitizer = stripForbiddenXmlUnicodeCharacters,
