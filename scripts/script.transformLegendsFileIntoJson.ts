@@ -14,7 +14,7 @@ import {
   measureTimeTaken,
   msToSeconds,
 } from "./utils";
-import { XmlSanitizerStream } from "./XmlSanitizerStream";
+import { XmlSanitizerStream } from "./XmlSanitizer";
 
 const hint: Script["hint"] = "";
 
@@ -103,9 +103,7 @@ const run: Script["run"] = async () => {
   try {
     const { timeTakenMs } = await measureTimeTaken(() =>
       parser.parseStream(
-        createReadStream(selectedFile.filepath).pipe(
-          new XmlSanitizerStream("cp437"),
-        ),
+        createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
       ),
     );
 

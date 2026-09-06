@@ -14,7 +14,7 @@ import {
   measureTimeTaken,
   msToSeconds,
 } from "./utils";
-import { XmlSanitizerStream } from "./XmlSanitizerStream";
+import { XmlSanitizerStream } from "./XmlSanitizer";
 
 const hint: Script["hint"] = "test";
 
@@ -100,9 +100,7 @@ const run: Script["run"] = async () => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { result, timeTakenMs } = await measureTimeTaken(() =>
       parser.parseStream(
-        createReadStream(selectedFile.filepath).pipe(
-          new XmlSanitizerStream("cp437"),
-        ),
+        createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
       ),
     );
 

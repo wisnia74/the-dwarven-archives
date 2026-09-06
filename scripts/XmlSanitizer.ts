@@ -5,32 +5,44 @@ import assert from "node:assert/strict";
 import { Transform } from "node:stream";
 
 /**
- * A custom {@link Transform} stream that flattens known DF legends XML wrapper elements, such as:
+ * Returns string stripped of characters that are not in the {@link https://www.w3.org/TR/xml/#charsets XML 1.0 allowed-character ranges}.
+ */
+export const stripForbiddenXmlUnicodeCharacters = (text: string) =>
+  text.replace(
+    // eslint-disable-next-line no-control-regex
+    /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu,
+    "",
+  );
+
+/**
+ * A custom {@link Transform} stream that expects to receive a `cp437` encoded chunk of DF legends XML file,
+ * which it transforms by flattening known top-level wrapper elements, such as:
  *
  * ```xml
  * <df_world>
- * <regions>
- * <underground_regions>
- * <sites>
- * <artifacts>
- * <historical_figures>
- * <entity_populations>
- * <entities>
- * <historical_events>
- * <historical_event_collections>
- * <historical_eras>
- * <written_contents>
- * <poetic_forms>
- * <musical_forms>
- * <dance_forms>
- * <world_constructions>
+ *   <regions>...</regions>
+ *   <underground_regions>...</underground_regions>
+ *   <sites>...</sites>
+ *   <artifacts>...</artifacts>
+ *   <historical_figures>...</historical_figures>
+ *   <entity_populations>...</entity_populations>
+ *   <entities>...</entities>
+ *   <historical_events>...</historical_events>
+ *   <historical_event_collections>...</historical_event_collections>
+ *   <historical_eras>...</historical_eras>
+ *   <written_contents>...</written_contents>
+ *   <poetic_forms>...</poetic_forms>
+ *   <musical_forms>...</musical_forms>
+ *   <dance_forms>...</dance_forms>
+ *   <world_constructions>...</world_constructions>
+ * </df_world>
  * ```
  *
- * It also strips {@link https://www.w3.org/TR/xml/#charsets illegal XML 1.0 control characters} that
- * would otherwise break parsing with {@link SequentialStreamBuilder}
- * (and likely other {@link https://github.com/nodable/flexible-xml-parser `@nodable`} parsers).
+ * and stripping {@link https://www.w3.org/TR/xml/#charsets illegal XML 1.0 control characters} that would
+ * otherwise break parsing with {@link SequentialStreamBuilder}.
  *
- * For example, if {@link XmlSanitizerStream} receives a chunk of an XML file that stringifies to:
+ * For example, if {@link XmlSanitizerStream} receives a `cp437` encoded chunk of an XML file, that
+ * after decoding stringifies to:
  * ```xml
  * <?xml version="1.0" encoding='CP437'?>
  * <df_world>
@@ -51,7 +63,7 @@ import { Transform } from "node:stream";
  * and passes it downstream.
  *
  * Notice that `<df_world>` and `<regions>` wrapper elements have been removed. Their children are emitted
- * as top-level elements rather than remaining nested inside their wrapper element.
+ * as top-level elements themselves rather than remaining nested inside their wrapper element.
  *
  * This is necessary because {@link SequentialStreamBuilder} parses XML incrementally and
  * {@link https://github.com/nodable/flexible-output-builders/tree/main/SequentialStreamBuilder#sequential-stream-output-builder **emits data one top-level element at a time**}.
@@ -66,30 +78,14 @@ import { Transform } from "node:stream";
  *
  */
 export class XmlSanitizerStream extends Transform {
-  private readonly encoding: iconv.Encoding;
-
-  /**
-   * Regex that matches any Unicode character/code point that is **NOT** in the XML 1.0 allowed-character ranges.
-   *
-   * @see https://www.w3.org/TR/xml/#charsets
-   */
-  private readonly illegalXmlChars =
-    // eslint-disable-next-line no-control-regex
-    /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu;
-
   /**
    * Known wrapper elements in DF legends files
    */
   private readonly knownWrapperElements =
     /<\/?(?:df_world|regions|underground_regions|sites|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|historical_eras|written_contents|poetic_forms|musical_forms|dance_forms|world_constructions)>/g;
 
-  constructor(encoding: iconv.Encoding) {
-    super({
-      readableObjectMode: true,
-      writableObjectMode: true,
-    });
-
-    this.encoding = encoding;
+  constructor() {
+    super({ readableObjectMode: true, writableObjectMode: true });
   }
 
   override _transform(
@@ -97,15 +93,14 @@ export class XmlSanitizerStream extends Transform {
   ) {
     assert.ok(chunk instanceof Buffer);
 
-    let sanitizedStringifiedChunk: string;
+    let sanitizedOutput: string;
 
     try {
-      sanitizedStringifiedChunk = iconv
-        .decode(chunk, this.encoding)
-        .replace(this.knownWrapperElements, "")
-        .replace(this.illegalXmlChars, "");
+      sanitizedOutput = stripForbiddenXmlUnicodeCharacters(
+        iconv.decode(chunk, `cp437`).replace(this.knownWrapperElements, ""),
+      );
 
-      callback(null, sanitizedStringifiedChunk);
+      callback(null, sanitizedOutput);
     } catch (err) {
       callback(err instanceof Error ? err : new Error(String(err)), null);
     }
