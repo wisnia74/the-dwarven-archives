@@ -78,4 +78,13 @@ export default defineConfig([
     files: ["**/*.{tsx}"],
     name: "react",
   },
+  // Disable some rules for test files
+  {
+    files: ["**/*.test.{ts,tsx}"],
+    name: "test-file-overrides",
+    rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+    },
+  },
 ]);

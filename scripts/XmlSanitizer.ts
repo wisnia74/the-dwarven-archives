@@ -4,15 +4,19 @@ import iconv from "iconv-lite";
 import assert from "node:assert/strict";
 import { Transform } from "node:stream";
 
+export type Sanitizer = (str: string) => string;
+
 /**
  * Returns string stripped of characters that are not in the {@link https://www.w3.org/TR/xml/#charsets XML 1.0 allowed-character ranges}.
  */
-export const stripForbiddenXmlUnicodeCharacters = (text: string) =>
-  text.replace(
+export const stripForbiddenXmlUnicodeCharacters: Sanitizer = (str: string) =>
+  str.replace(
     // eslint-disable-next-line no-control-regex
     /[^\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]/gu,
     "",
   );
+
+export type Decoder = (typeof iconv)["decode"];
 
 /**
  * A custom {@link Transform} stream that expects to receive a `cp437` encoded chunk of DF legends XML file,
@@ -44,7 +48,6 @@ export const stripForbiddenXmlUnicodeCharacters = (text: string) =>
  * For example, if {@link XmlSanitizerStream} receives a `cp437` encoded chunk of an XML file, that
  * after decoding stringifies to:
  * ```xml
- * <?xml version="1.0" encoding='CP437'?>
  * <df_world>
  *   <regions>
  *     <region>...</region>
@@ -55,7 +58,6 @@ export const stripForbiddenXmlUnicodeCharacters = (text: string) =>
  *
  * it transforms it into:
  * ```xml
- * <?xml version="1.0" encoding='CP437'?>
  *     <region>...</region>
  *     <region>...</region>
  * ```
@@ -78,14 +80,26 @@ export const stripForbiddenXmlUnicodeCharacters = (text: string) =>
  *
  */
 export class XmlSanitizerStream extends Transform {
+  private decoder: Decoder;
+
   /**
-   * Known wrapper elements in DF legends files
+   * Known wrapper elements in DF legends XML files.
    */
   private readonly knownWrapperElements =
     /<\/?(?:df_world|regions|underground_regions|sites|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|historical_eras|written_contents|poetic_forms|musical_forms|dance_forms|world_constructions)>/g;
+  private sanitizer: Sanitizer;
 
-  constructor() {
+  /**
+   * @param {}
+   */
+  constructor(
+    decoder: Decoder = iconv.decode,
+    sanitizer: Sanitizer = stripForbiddenXmlUnicodeCharacters,
+  ) {
     super({ readableObjectMode: true, writableObjectMode: true });
+
+    this.decoder = decoder;
+    this.sanitizer = sanitizer;
   }
 
   override _transform(
@@ -96,8 +110,8 @@ export class XmlSanitizerStream extends Transform {
     let sanitizedOutput: string;
 
     try {
-      sanitizedOutput = stripForbiddenXmlUnicodeCharacters(
-        iconv.decode(chunk, `cp437`).replace(this.knownWrapperElements, ""),
+      sanitizedOutput = this.sanitizer(
+        this.decoder(chunk, "cp437").replace(this.knownWrapperElements, ""),
       );
 
       callback(null, sanitizedOutput);

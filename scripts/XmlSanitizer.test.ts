@@ -1,6 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { stripForbiddenXmlUnicodeCharacters } from "./XmlSanitizer";
+import {
+  type Decoder,
+  type Sanitizer,
+  stripForbiddenXmlUnicodeCharacters,
+  XmlSanitizerStream,
+} from "./XmlSanitizer";
 
 describe("XmlSanitizer", () => {
   describe("stripForbiddenXmlUnicodeCharacters", () => {
@@ -80,6 +85,77 @@ describe("XmlSanitizer", () => {
           xmlBoundaryUnicodeCharacters.join(""),
         ),
       ).toStrictEqual(xmlBoundaryUnicodeCharacters.join(""));
+    });
+  });
+
+  describe("XmlSanitizerStream", () => {
+    it("flattens any known DF legends XML file top-level wrapper elements so that their children become top-level elements themselves", () => {
+      const mockDecoder = vi.fn<Decoder>((chunk) => chunk.toString());
+      const mockSanitizer = vi.fn<Sanitizer>((str) => str);
+
+      const stream = new XmlSanitizerStream(mockDecoder, mockSanitizer);
+      const buffer = Buffer.from(`
+        <df_world>
+          <regions><a>1</a></regions>
+          <underground_regions><b>2</b></underground_regions>
+          <sites><c>3</c></sites>
+          <artifacts><d>4</d></artifacts>
+          <historical_figures><e>5</e></historical_figures>
+          <entity_populations><f>6</f></entity_populations>
+          <entities><g>7</g></entities>
+          <historical_events><h>8</h></historical_events>
+          <historical_event_collections><i>9</i></historical_event_collections>
+          <historical_eras><j>10</j></historical_eras>
+          <written_contents><k>11</k></written_contents>
+          <poetic_forms><l>12</l></poetic_forms>
+          <musical_forms><m>13</m></musical_forms>
+          <dance_forms><n>14</n></dance_forms>
+          <world_constructions><o>15</o></world_constructions>
+        </df_world>`);
+
+      stream.write(buffer);
+
+      const result = stream.read();
+
+      expect(mockDecoder).toHaveBeenCalledTimes(1);
+      expect(mockDecoder).toHaveBeenCalledWith(buffer, "cp437");
+      expect(mockSanitizer).toHaveBeenCalledTimes(1);
+      expect(mockSanitizer).toHaveBeenCalledWith(`
+        
+          <a>1</a>
+          <b>2</b>
+          <c>3</c>
+          <d>4</d>
+          <e>5</e>
+          <f>6</f>
+          <g>7</g>
+          <h>8</h>
+          <i>9</i>
+          <j>10</j>
+          <k>11</k>
+          <l>12</l>
+          <m>13</m>
+          <n>14</n>
+          <o>15</o>
+        `);
+      expect(result).toBe(`
+        
+          <a>1</a>
+          <b>2</b>
+          <c>3</c>
+          <d>4</d>
+          <e>5</e>
+          <f>6</f>
+          <g>7</g>
+          <h>8</h>
+          <i>9</i>
+          <j>10</j>
+          <k>11</k>
+          <l>12</l>
+          <m>13</m>
+          <n>14</n>
+          <o>15</o>
+        `);
     });
   });
 });
