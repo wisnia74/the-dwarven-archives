@@ -83,11 +83,6 @@ export class XmlSanitizerStream extends Transform {
   private readonly knownWrapperElements =
     /<\/?(?:df_world|regions|underground_regions|sites|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|historical_eras|written_contents|poetic_forms|musical_forms|dance_forms|world_constructions)>/g;
 
-  /**
-   * TODO: usage will mostly be `new XmlSanitizerStream('cp437')` because it is known beforehand that
-   * DF legends files are encoded in `cp437`, if it's ever beneficial consider making the logic
-   * read the actual encoding from the XML document and pass it to this class.
-   */
   constructor(encoding: iconv.Encoding) {
     super({
       readableObjectMode: true,

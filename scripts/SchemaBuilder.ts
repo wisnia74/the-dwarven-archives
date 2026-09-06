@@ -2,17 +2,16 @@ import {
   BaseOutputBuilder,
   BaseOutputBuilderFactory,
 } from "@nodable/base-output-builder";
+import assert from "node:assert/strict";
 
 type SerializableValue = Map<string, SerializableValue> | Set<string> | string;
 
-export const recursivelyTransformMapOrSetToObject = (
-  value: SerializableValue,
-): unknown => {
+export const toStringifiableValue = (value: SerializableValue): unknown => {
   if (value instanceof Map) {
     return Object.fromEntries(
       Array.from(value.entries(), ([key, value]) => [
         key,
-        recursivelyTransformMapOrSetToObject(value),
+        toStringifiableValue(value),
       ]),
     );
   }
@@ -24,17 +23,11 @@ export const recursivelyTransformMapOrSetToObject = (
   return value;
 };
 
-export const JSONstringifySchema = (
-  schema: Map<string, Map<string, Set<string>>>,
-): string => {
-  return JSON.stringify(recursivelyTransformMapOrSetToObject(schema));
-};
-
 export class SchemaBuilder extends BaseOutputBuilder {
-  private currentChildElement = "";
+  private currentFirstChildElement = "";
   private currentWrapperElement = "";
   private depth = -1;
-  private schema = new Map<string, Map<string, Set<string>>>();
+  private readonly schema = new Map<string, Map<string, Set<string>>>();
 
   override addElement(
     tag: Parameters<BaseOutputBuilder["addElement"]>[0],
@@ -57,42 +50,40 @@ export class SchemaBuilder extends BaseOutputBuilder {
     this.depth++;
 
     if (this.depth === 1) {
-      this.currentChildElement = tag.name;
+      this.currentFirstChildElement = tag.name;
     }
 
     if (this.depth < 2) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const wrapperSchema = this.schema.get(this.currentWrapperElement)!;
+      const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
+      assert.ok(!!wrapperElementSchema);
 
-      if (!wrapperSchema.has(this.currentChildElement)) {
-        wrapperSchema.set(this.currentChildElement, new Set());
+      if (!wrapperElementSchema.has(this.currentFirstChildElement)) {
+        wrapperElementSchema.set(this.currentFirstChildElement, new Set());
       }
     }
   }
 
   override addValue(text: Parameters<BaseOutputBuilder["addValue"]>[0]): void {
-    const wrapperSchema = this.schema.get(this.currentWrapperElement);
+    const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
+    assert.ok(!!wrapperElementSchema);
 
-    wrapperSchema
-      ?.get(this.currentChildElement)
+    wrapperElementSchema
+      .get(this.currentFirstChildElement)
       ?.add(this.depth < 2 ? typeof text : "object");
   }
 
   override closeElement(): void {
+    const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
+    assert.ok(!!wrapperElementSchema);
+
     if (this.depth >= 2) {
-      this.schema
-        .get(this.currentWrapperElement)
-        ?.get(this.currentChildElement)
-        ?.add("object");
+      wrapperElementSchema.get(this.currentFirstChildElement)?.add("object");
     }
 
     this.depth--;
 
     if (this.depth < 0) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const wrapperSchema = this.schema.get(this.currentWrapperElement)!;
-
-      for (const [, types] of wrapperSchema) {
+      for (const [, types] of wrapperElementSchema) {
         if (types.size === 0) {
           types.add("presence_based_boolean");
         }
@@ -101,11 +92,11 @@ export class SchemaBuilder extends BaseOutputBuilder {
       this.currentWrapperElement = "";
     }
 
-    this.currentChildElement = "";
+    this.currentFirstChildElement = "";
   }
 
   override getOutput(): string {
-    return JSONstringifySchema(this.schema);
+    return JSON.stringify(toStringifiableValue(this.schema));
   }
 }
 
