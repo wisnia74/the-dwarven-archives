@@ -36,6 +36,7 @@ import { Transform, type TransformCallback } from "stream";
  *     <region>...</region>
  *     <region>...</region>
  *   </regions>
+ * </df_world>
  * ```
  *
  * it transforms it into:
