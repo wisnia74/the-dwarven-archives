@@ -7,7 +7,7 @@ import eslintPluginReactX from "eslint-plugin-react-x";
 import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
-import path from "path";
+import path from "node:path";
 import tseslint from "typescript-eslint";
 import { fileURLToPath } from "url";
 

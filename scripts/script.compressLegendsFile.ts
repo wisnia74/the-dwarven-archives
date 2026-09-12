@@ -1,8 +1,8 @@
-import type { Stats } from "fs";
+import type { Stats } from "node:fs";
 
 import { autocomplete, isCancel, spinner, text } from "@clack/prompts";
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import { __dirname } from "~/dirname";
 

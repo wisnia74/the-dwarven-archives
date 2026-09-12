@@ -87,6 +87,7 @@ export class XmlSanitizerStream extends Transform {
    */
   private readonly knownWrapperElements =
     /<\/?(?:df_world|regions|underground_regions|sites|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|historical_eras|written_contents|poetic_forms|musical_forms|dance_forms|world_constructions)>/g;
+
   private sanitizer: Sanitizer;
 
   constructor(
@@ -99,6 +100,10 @@ export class XmlSanitizerStream extends Transform {
     this.sanitizer = sanitizer;
   }
 
+  /**
+   * Doesn't use `encoding` param for decoding - hardcoded to `cp437` because it's meant to be used only
+   * for DF legends files and we know encoding of those beforehand.
+   */
   override _transform(
     ...[chunk, _encoding, callback]: Parameters<Transform["_transform"]>
   ) {

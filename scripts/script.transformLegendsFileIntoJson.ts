@@ -1,9 +1,9 @@
 import { autocomplete, isCancel, spinner, text } from "@clack/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
 import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
-import { createReadStream, createWriteStream, type Stats } from "fs";
-import fs from "fs/promises";
-import path from "path";
+import { createReadStream, createWriteStream, type Stats } from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import { __dirname } from "~/dirname";
 
@@ -14,7 +14,7 @@ import {
   measureTimeTaken,
   msToSeconds,
 } from "./utils";
-import { XmlSanitizerStream } from "./XmlSanitizer";
+import { XmlSanitizerStream } from "./XmlSanitizer/XmlSanitizer";
 
 const hint: Script["hint"] = "";
 

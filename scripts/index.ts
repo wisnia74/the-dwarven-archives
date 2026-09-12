@@ -1,6 +1,6 @@
 import { autocomplete, intro, isCancel, outro } from "@clack/prompts";
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import { __dirname } from "~/dirname";
 

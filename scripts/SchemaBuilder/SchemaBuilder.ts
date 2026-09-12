@@ -69,7 +69,7 @@ export class SchemaBuilder extends BaseOutputBuilder {
 
     wrapperElementSchema
       .get(this.currentFirstChildElement)
-      ?.add(this.depth < 2 ? typeof text : "object");
+      ?.add(this.depth < 2 ? typeof text : "array_of_objects");
   }
 
   override closeElement(): void {
@@ -77,7 +77,9 @@ export class SchemaBuilder extends BaseOutputBuilder {
     assert.ok(!!wrapperElementSchema);
 
     if (this.depth >= 2) {
-      wrapperElementSchema.get(this.currentFirstChildElement)?.add("object");
+      wrapperElementSchema
+        .get(this.currentFirstChildElement)
+        ?.add("array_of_objects");
     }
 
     this.depth--;

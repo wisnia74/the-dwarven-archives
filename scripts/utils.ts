@@ -1,9 +1,9 @@
-import type { PathLike } from "fs";
+import type { PathLike } from "node:fs";
 
 import { cancel } from "@clack/prompts";
-import { createReadStream, createWriteStream } from "fs";
-import path from "path";
-import { pipeline } from "stream/promises";
+import { createReadStream, createWriteStream } from "node:fs";
+import path from "node:path";
+import { pipeline } from "node:stream/promises";
 import { createGunzip, createGzip } from "zlib";
 
 type CancelScriptOptions =
