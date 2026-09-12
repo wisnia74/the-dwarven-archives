@@ -7,8 +7,35 @@ import { describe, expect, it } from "vitest";
 import { __dirname } from "~/dirname";
 
 import { XmlSanitizerStream } from "../XmlSanitizer/XmlSanitizer";
-import { SchemaBuilder, SchemaBuilderFactory } from "./SchemaBuilder";
+import {
+  SchemaBuilder,
+  SchemaBuilderFactory,
+  type SerializableValue,
+  toStringifiableValue,
+} from "./SchemaBuilder";
 import SchemaBuilderSchemaJson from "./SchemaBuilder.schema.json";
+
+describe("toStringifiableValue", () => {
+  it("converts Map containing a mix of Maps, Sets and strings to a stringifiable value", () => {
+    const stringifiable = toStringifiableValue(
+      new Map<string, SerializableValue>([
+        ["map", new Map([["a", "b"]])],
+        ["set", new Set(["c", "d"])],
+        ["string", "e"],
+      ]),
+    );
+
+    expect(stringifiable).toStrictEqual({
+      map: { a: "b" },
+      set: ["c", "d"],
+      string: "e",
+    });
+
+    expect(JSON.stringify(stringifiable)).toStrictEqual(
+      '{"map":{"a":"b"},"set":["c","d"],"string":"e"}',
+    );
+  });
+});
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;

@@ -4,7 +4,8 @@ import {
 } from "@nodable/base-output-builder";
 import assert from "node:assert/strict";
 
-type SerializableValue = Map<string, SerializableValue> | Set<string> | string;
+export type SerializableValue =
+  Map<string, SerializableValue> | Set<string> | string;
 
 export const toStringifiableValue = (value: SerializableValue): unknown => {
   if (value instanceof Map) {
