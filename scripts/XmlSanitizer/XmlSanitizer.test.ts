@@ -32,12 +32,10 @@ describe("stripForbiddenXmlUnicodeCharacters", () => {
       ).toStrictEqual("");
     }
 
-    const DELIMITER = "|";
-
     /**
      * Check whether all forbidden Unicode characters get stripped if they're all inside the input string.
      *
-     * We join forbidden Unicode characters with a `|` delimiter instead of `.join("")`, because certain
+     * We join forbidden Unicode characters with a `.join("|")` delimiter instead of `.join("")`, because certain
      * Unicode characters represent valid astral Unicode characters when they are right next to each other.
      *
      * For example:
@@ -57,9 +55,9 @@ describe("stripForbiddenXmlUnicodeCharacters", () => {
      */
     expect(
       stripForbiddenXmlUnicodeCharacters(
-        forbiddenXmlUnicodeCharacters.join(DELIMITER),
+        forbiddenXmlUnicodeCharacters.join("|"),
       ),
-    ).toStrictEqual(DELIMITER.repeat(forbiddenXmlUnicodeCharacters.length - 1));
+    ).toStrictEqual("|".repeat(forbiddenXmlUnicodeCharacters.length - 1));
   });
 
   it("preserves every XML 1.0 boundary character", () => {
