@@ -69,7 +69,7 @@ describe("SchemaBuilder", () => {
 });
 
 describe("SchemaBuilderFactory", () => {
-  describe("getInstance()", () => {
+  describe("getInstance", () => {
     it("returns an instance of SchemaBuilder", () => {
       expect(new SchemaBuilderFactory().getInstance({}, null)).toBeInstanceOf(
         SchemaBuilder,
