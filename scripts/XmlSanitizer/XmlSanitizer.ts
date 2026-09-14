@@ -19,7 +19,7 @@ export const stripForbiddenXmlUnicodeCharacters: Sanitizer = (str: string) =>
 export type Decoder = (typeof iconv)["decode"];
 
 /**
- * A custom {@link Transform} stream that expects to receive a `cp437` encoded chunk of DF legends XML file,
+ * A custom {@link Transform} stream that expects to receive a `cp437` encoded chunk of legends file,
  * which it transforms by flattening known top-level wrapper elements, such as:
  *
  * ```xml
@@ -83,7 +83,7 @@ export class XmlSanitizerStream extends Transform {
   private decoder: Decoder;
 
   /**
-   * Known wrapper elements in DF legends XML files.
+   * Known wrapper elements in legends files.
    */
   private readonly knownWrapperElements =
     /<\/?(?:df_world|regions|underground_regions|sites|artifacts|historical_figures|entity_populations|entities|historical_events|historical_event_collections|historical_eras|written_contents|poetic_forms|musical_forms|dance_forms|world_constructions)>/g;
@@ -102,7 +102,7 @@ export class XmlSanitizerStream extends Transform {
 
   /**
    * Doesn't use `encoding` param for decoding - hardcoded to `cp437` because it's meant to be used only
-   * for DF legends files and we know encoding of those beforehand.
+   * for legends files and we know encoding of those beforehand.
    */
   override _transform(
     ...[chunk, _encoding, callback]: Parameters<Transform["_transform"]>

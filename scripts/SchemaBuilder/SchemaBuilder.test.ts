@@ -38,7 +38,7 @@ describe("toStringifiableValue", () => {
 });
 
 describe("SchemaBuilder", () => {
-  it("generates correct schema for DF legends XML file", async () => {
+  it("generates correct schema for legends file", async () => {
     const parser = new XMLParser({
       OutputBuilder: new SchemaBuilderFactory({}),
       skip: {

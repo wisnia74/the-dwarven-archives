@@ -81,7 +81,7 @@ describe("stripForbiddenXmlUnicodeCharacters", () => {
 });
 
 describe("XmlSanitizerStream", () => {
-  it("flattens any known DF legends XML file top-level wrapper elements so that their children become top-level elements themselves", () => {
+  it("flattens any known legends file top-level wrapper elements so that their children become top-level elements themselves", () => {
     const mockDecoder = vi.fn<Decoder>((chunk) => chunk.toString());
     const mockSanitizer = vi.fn<Sanitizer>((str) => str);
 
