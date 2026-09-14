@@ -5,15 +5,15 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { __dirname } from "~/dirname";
+import legendsSchema from "~/global/legends.schema.json";
 
-import { XmlSanitizerStream } from "../XmlSanitizer/XmlSanitizer";
+import { XmlSanitizerStream } from "../XmlSanitizer";
 import {
   SchemaBuilder,
   SchemaBuilderFactory,
   type SerializableValue,
   toStringifiableValue,
 } from "./SchemaBuilder";
-import SchemaBuilderSchemaJson from "./SchemaBuilder.schema.json";
 
 describe("toStringifiableValue", () => {
   it("converts Map containing a mix of Maps, Sets and strings to a stringifiable value", () => {
@@ -37,11 +37,8 @@ describe("toStringifiableValue", () => {
   });
 });
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
-
 describe("SchemaBuilder", () => {
-  it("generates correct schema from DF legends XML file", async () => {
+  it("generates correct schema for DF legends XML file", async () => {
     const parser = new XMLParser({
       OutputBuilder: new SchemaBuilderFactory({}),
       skip: {
@@ -61,10 +58,7 @@ describe("SchemaBuilder", () => {
     );
     assert.ok(typeof result === "string");
 
-    const parsedResult = JSON.parse(result);
-    assert.ok(isObject(parsedResult));
-
-    expect(parsedResult).toStrictEqual(SchemaBuilderSchemaJson);
+    expect(JSON.parse(result)).toStrictEqual(legendsSchema);
   });
 });
 

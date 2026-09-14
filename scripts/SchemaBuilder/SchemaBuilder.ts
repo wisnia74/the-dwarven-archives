@@ -70,7 +70,7 @@ export class SchemaBuilder extends BaseOutputBuilder {
 
     wrapperElementSchema
       .get(this.currentFirstChildElement)
-      ?.add(this.depth < 2 ? typeof text : "array_of_objects");
+      ?.add(this.depth < 2 ? typeof text : "json_array");
   }
 
   override closeElement(): void {
@@ -80,7 +80,7 @@ export class SchemaBuilder extends BaseOutputBuilder {
     if (this.depth >= 2) {
       wrapperElementSchema
         .get(this.currentFirstChildElement)
-        ?.add("array_of_objects");
+        ?.add("json_array");
     }
 
     this.depth--;
@@ -88,7 +88,7 @@ export class SchemaBuilder extends BaseOutputBuilder {
     if (this.depth < 0) {
       for (const [, types] of wrapperElementSchema) {
         if (types.size === 0) {
-          types.add("presence_based_boolean");
+          types.add("boolean");
         }
       }
 
