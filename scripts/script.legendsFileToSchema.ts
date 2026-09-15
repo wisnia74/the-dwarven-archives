@@ -65,7 +65,7 @@ void (async () => {
   });
 
   const parser = new XMLParser({
-    OutputBuilder: new SchemaBuilderFactory({ space: 2 }),
+    OutputBuilder: new SchemaBuilderFactory(),
     skip: {
       declaration: true,
     },

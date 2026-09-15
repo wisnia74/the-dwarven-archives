@@ -212,6 +212,7 @@
       <circumstance_id>historical_event_circumstance_id</circumstance_id>
       <occasion_id>historical_event_occasion_id</occasion_id>
       <schedule_id>historical_event_schedule_id</schedule_id>
+      <season>historical_event_season</season>
       <winner_hfid>historical_event_winner_hfid</winner_hfid>
       <competitor_hfid>historical_event_competitor_hfid</competitor_hfid>
       <subtype>historical_event_subtype</subtype>
@@ -328,6 +329,7 @@
       <property_confiscated_from_hfid>historical_event_property_confiscated_from_hfid</property_confiscated_from_hfid>
       <shrine_amount_destroyed>historical_event_shrine_amount_destroyed</shrine_amount_destroyed>
       <building_profile_id>historical_event_building_profile_id</building_profile_id>
+      <acquirer_enid>historical_event_acquirer_enid_id</acquirer_enid>
       <acquirer_hfid>historical_event_acquirer_hfid</acquirer_hfid>
       <purchased_unowned />
       <inherited />

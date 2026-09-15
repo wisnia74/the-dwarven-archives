@@ -10,6 +10,11 @@ export const green = (str: string) => styleText("green", str);
 export const grey = (str: string) => styleText("grey", str);
 export const red = (str: string) => styleText("red", str);
 
+export const msToSeconds = (val: number): string =>
+  `${(val / 1000).toFixed(2)}s`;
+export const bytesToMB = (val: number): string =>
+  `${(val / 1024 / 1024).toFixed(2)}MB`;
+
 export const measureTimeTaken = async <T>(
   callback: () => Promise<T> | T,
 ): Promise<{ result: T; timeTakenMs: number }> => {
@@ -19,10 +24,21 @@ export const measureTimeTaken = async <T>(
   return { result, timeTakenMs };
 };
 
-export const msToSeconds = (val: number): string =>
-  `${(val / 1000).toFixed(2)}s`;
-export const bytesToMB = (val: number): string =>
-  `${(val / 1024 / 1024).toFixed(2)}MB`;
+export const sortObjectKeys = (
+  obj: Record<string, unknown>,
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(obj)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => [
+        key,
+        value !== null && typeof value === "object" && !Array.isArray(value) ?
+          Object.fromEntries(
+            Object.entries(value).sort(([a], [b]) => a.localeCompare(b)),
+          )
+        : value,
+      ]),
+  );
 
 export const copyFile = async (
   source: PathLike,
