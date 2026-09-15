@@ -1,9 +1,5 @@
 {
-  "region": {
-    "id": ["string"],
-    "name": ["string"],
-    "type": ["string"]
-  },
+  "region": { "id": ["string"], "name": ["string"], "type": ["string"] },
   "underground_region": {
     "id": ["string"],
     "type": ["string"],
@@ -70,14 +66,8 @@
     "animated": ["boolean"],
     "animated_string": ["string"]
   },
-  "entity_population": {
-    "id": ["string"]
-  },
-  "entity": {
-    "id": ["string"],
-    "name": ["string"],
-    "honor": ["json_array"]
-  },
+  "entity_population": { "id": ["string"] },
+  "entity": { "id": ["string"], "name": ["string"], "honor": ["json_array"] },
   "historical_event": {
     "id": ["string"],
     "year": ["string"],
@@ -365,10 +355,7 @@
     "a_support_merc_hfid": ["string"],
     "adjective": ["string"]
   },
-  "historical_era": {
-    "name": ["string"],
-    "start_year": ["string"]
-  },
+  "historical_era": { "name": ["string"], "start_year": ["string"] },
   "written_content": {
     "id": ["string"],
     "title": ["string"],
@@ -378,16 +365,7 @@
     "form_id": ["string"],
     "style": ["string"]
   },
-  "poetic_form": {
-    "id": ["string"],
-    "description": ["string"]
-  },
-  "musical_form": {
-    "id": ["string"],
-    "description": ["string"]
-  },
-  "dance_form": {
-    "id": ["string"],
-    "description": ["string"]
-  }
+  "poetic_form": { "id": ["string"], "description": ["string"] },
+  "musical_form": { "id": ["string"], "description": ["string"] },
+  "dance_form": { "id": ["string"], "description": ["string"] }
 }
