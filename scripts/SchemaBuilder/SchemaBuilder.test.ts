@@ -6,8 +6,8 @@ import { describe, expect, it } from "vitest";
 
 import { __dirname } from "~/dirname";
 import legendsSchema from "~/global/legends.schema.json";
+import { XmlSanitizerStream } from "~/scripts/XmlSanitizer";
 
-import { XmlSanitizerStream } from "../XmlSanitizer";
 import {
   SchemaBuilder,
   SchemaBuilderFactory,
