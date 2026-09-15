@@ -28,7 +28,7 @@ void (async () => {
     .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
   if (!files.length) {
-    throw new Error(`No files found in ${config.DWARF_FORTRESS_DIR}`);
+    throw new Error(`No legends files found in ${config.DWARF_FORTRESS_DIR}`);
   }
 
   const stats = await Promise.all(

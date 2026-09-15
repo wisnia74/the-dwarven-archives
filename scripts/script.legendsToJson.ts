@@ -23,7 +23,7 @@ void (async () => {
     .map((x) => path.join(TEMP_DIR, x));
 
   if (!files.length) {
-    throw new Error(`No transformable files found in ${TEMP_DIR}`);
+    throw new Error(`No transformable legends files found in ${TEMP_DIR}`);
   }
 
   const stats = await Promise.all(

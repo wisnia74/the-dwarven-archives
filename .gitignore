@@ -1,5 +1,5 @@
-# Legends dir
-legends/
+# Temp dir
+temp/
 
 # .env files
 *.env
