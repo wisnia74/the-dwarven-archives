@@ -1,39 +1,14 @@
 import type { PathLike } from "node:fs";
 
-import { cancel } from "@clack/prompts";
 import { createReadStream, createWriteStream } from "node:fs";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
-import { createGunzip, createGzip } from "zlib";
+import { styleText } from "node:util";
+import { createGunzip, createGzip } from "node:zlib";
 
-type CancelScriptOptions =
-  | {
-      reason: string;
-      trigger: "self";
-    }
-  | {
-      reason?: string;
-      trigger: "error" | "user";
-    };
-
-export const cancelScript = ({
-  reason,
-  trigger,
-}: CancelScriptOptions): void => {
-  switch (trigger) {
-    case "error":
-      cancel("Encountered an error while running a script");
-      break;
-
-    case "self":
-      cancel(`Script cancelled - ${reason}`);
-      break;
-
-    case "user":
-      cancel("Script cancelled by the user");
-      break;
-  }
-};
+export const green = (str: string) => styleText("green", str);
+export const grey = (str: string) => styleText("grey", str);
+export const red = (str: string) => styleText("red", str);
 
 export const measureTimeTaken = async <T>(
   callback: () => Promise<T> | T,
@@ -57,6 +32,7 @@ export const copyFile = async (
     createReadStream(path.resolve(source.toString())),
     createWriteStream(path.resolve(dest.toString())),
   );
+
   return dest;
 };
 
