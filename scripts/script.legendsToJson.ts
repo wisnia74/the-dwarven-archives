@@ -1,22 +1,17 @@
 import "./TerminationHandler";
 
-import type { Stats } from "node:fs";
-
 import { input, select } from "@inquirer/prompts";
+import XMLParser from "@nodable/flexible-xml-parser";
+import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
+import { createReadStream, createWriteStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 import { TEMP_DIR } from "~/dirname";
 
 import { spinner } from "./spinner";
-import {
-  bytesToMB,
-  green,
-  grey,
-  gunzip,
-  measureTimeTaken,
-  msToSeconds,
-} from "./utils";
+import { bytesToMB, green, grey, measureTimeTaken, msToSeconds } from "./utils";
+import { XmlSanitizerStream } from "./XmlSanitizer";
 
 void (async () => {
   const dirContent = await fs.readdir(TEMP_DIR, {
@@ -24,11 +19,11 @@ void (async () => {
   });
 
   const legendsFiles = dirContent
-    .filter((x) => x.endsWith("legends.xml.gz"))
+    .filter((x) => x.endsWith("legends.xml"))
     .map((x) => path.join(TEMP_DIR, x));
 
   if (!legendsFiles.length) {
-    throw new Error(`No decompressable legends files found in ${TEMP_DIR}`);
+    throw new Error(`No transformable files found in ${TEMP_DIR}`);
   }
 
   const stats = await Promise.all(
@@ -43,21 +38,21 @@ void (async () => {
       .sort(([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs)
       .map(([filepath, stats]) => ({
         name: `${filepath} ${grey(
-          `(${bytesToMB(stats.size)}, last modified ${new Date(
+          `${bytesToMB(stats.size)}, last modified ${new Date(
             stats.mtimeMs,
-          ).toLocaleString()})`,
+          ).toLocaleString()}`,
         )}`,
         value: { filepath, stats },
       })),
-    message: "Select file to decompress:",
+    message: "Select file to transform into JSON:",
   });
 
   const dest = await input({
-    default: selectedFile.filepath.slice(0, -3),
-    message: "Decompress as:",
+    default: selectedFile.filepath.slice(0, -3).concat("json"),
+    message: "Transform as:",
     prefill: "editable",
     required: true,
-    validate: async (dest) =>
+    validate: (dest) =>
       fs
         .access(dest, fs.constants.F_OK)
         .then(() => `${dest} already exists`)
@@ -68,15 +63,28 @@ void (async () => {
     recursive: true,
   });
 
-  spinner.start("Decompressing...");
+  const output = createWriteStream(dest, { encoding: "utf-8" });
+
+  const parser = new XMLParser({
+    OutputBuilder: new SequentialStreamBuilderFactory({
+      stream: output,
+    }),
+    skip: {
+      declaration: true,
+    },
+  });
+
+  spinner.start("Transforming...");
 
   const { timeTakenMs } = await measureTimeTaken(() =>
-    gunzip(selectedFile.filepath, dest),
+    parser.parseStream(
+      createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
+    ),
   );
 
   const { size: destFileSize } = await fs.stat(dest);
 
   spinner.succeed(
-    `${green(`File decompressed to ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`)}`,
+    `${green(`File transformed to ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(destFileSize)})`)}`,
   );
 })();

@@ -1,34 +1,35 @@
 import "./TerminationHandler";
 
-import { input, select } from "@inquirer/prompts";
+import { select } from "@inquirer/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
+import assert from "node:assert/strict";
 import { createReadStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import prettier from "prettier";
 
-import { TEMP_DIR } from "~/dirname";
+import globalLegendsSchema from "~/global/legends.schema.json";
 
+import { getConfig } from "./config";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { spinner } from "./spinner";
 import { bytesToMB, green, grey, measureTimeTaken, msToSeconds } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 void (async () => {
-  const dirContent = await fs.readdir(TEMP_DIR, {
-    recursive: true,
-  });
+  const config = await getConfig();
 
-  const legendsFiles = dirContent
-    .filter((x) => x.endsWith("legends.xml"))
-    .map((x) => path.join(TEMP_DIR, x));
+  const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
+  const files = dirContent
+    .filter((x) => x.endsWith(".xml"))
+    .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
-  if (!legendsFiles.length) {
-    throw new Error(`No transformable legends files found in ${TEMP_DIR}`);
+  if (!files.length) {
+    throw new Error(`No legends files found in ${config.DWARF_FORTRESS_DIR}`);
   }
 
   const stats = await Promise.all(
-    legendsFiles.map(async (filepath): Promise<[string, Stats]> => [
+    files.map(async (filepath): Promise<[string, Stats]> => [
       filepath,
       await fs.stat(filepath),
     ]),
@@ -45,23 +46,7 @@ void (async () => {
         )}`,
         value: { filepath, stats },
       })),
-    message: "Select file to transform into schema:",
-  });
-
-  const dest = await input({
-    default: selectedFile.filepath.slice(0, -3).concat("schema.json"),
-    message: "Transform as:",
-    prefill: "editable",
-    required: true,
-    validate: (dest) =>
-      fs
-        .access(dest, fs.constants.F_OK)
-        .then(() => `${dest} already exists`)
-        .catch(() => true),
-  });
-
-  await fs.mkdir(path.dirname(dest), {
-    recursive: true,
+    message: "Select file to compare against global schema:",
   });
 
   const parser = new XMLParser({
@@ -71,27 +56,29 @@ void (async () => {
     },
   });
 
-  spinner.start("Transforming...");
+  spinner.start("Comparing...");
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { result, timeTakenMs } = await measureTimeTaken(() =>
+  const { returnValue, timeTakenMs } = await measureTimeTaken(() =>
     parser.parseStream(
       createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
     ),
   );
 
-  await fs.writeFile(
-    dest,
-    await prettier.format(result as string, {
-      parser: "json",
-      tabWidth: 2,
-      useTabs: false,
-    }),
+  assert.ok(typeof returnValue === "string");
+
+  assert.deepEqual(
+    JSON.parse(
+      await prettier.format(returnValue, {
+        parser: "json",
+        tabWidth: 2,
+        useTabs: false,
+      }),
+    ),
+    globalLegendsSchema,
   );
 
-  const { size: destFileSize } = await fs.stat(dest);
-
   spinner.succeed(
-    `${green(`File transformed to ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(destFileSize)})`)}`,
+    `${green(`${selectedFile.filepath} is a subset of the global schema`)} ${grey(`(compared in ${msToSeconds(timeTakenMs)})`)}`,
   );
 })();

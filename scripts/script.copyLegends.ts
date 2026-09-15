@@ -12,7 +12,7 @@ import { getConfig } from "./config";
 import { spinner } from "./spinner";
 import {
   bytesToMB,
-  copyFile,
+  copy,
   green,
   grey,
   measureTimeTaken,
@@ -28,7 +28,7 @@ void (async () => {
     .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
 
   if (!files.length) {
-    throw new Error(`No legends files found in ${config.DWARF_FORTRESS_DIR}`);
+    throw new Error(`No files found in ${config.DWARF_FORTRESS_DIR}`);
   }
 
   const stats = await Promise.all(
@@ -74,7 +74,7 @@ void (async () => {
   spinner.start("Copying...");
 
   const { timeTakenMs } = await measureTimeTaken(() =>
-    copyFile(selectedFile.filepath, dest),
+    copy(selectedFile.filepath, dest),
   );
 
   spinner.succeed(

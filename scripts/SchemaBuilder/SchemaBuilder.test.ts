@@ -1,5 +1,5 @@
 import XMLParser from "@nodable/flexible-xml-parser";
-import assert from "node:assert";
+import assert from "node:assert/strict";
 import { createReadStream } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";

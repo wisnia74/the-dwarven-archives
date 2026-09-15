@@ -13,7 +13,7 @@ import {
   bytesToMB,
   green,
   grey,
-  gzip,
+  gunzip,
   measureTimeTaken,
   msToSeconds,
 } from "./utils";
@@ -24,11 +24,11 @@ void (async () => {
   });
 
   const legendsFiles = dirContent
-    .filter((x) => x.endsWith("legends.xml"))
+    .filter((x) => x.endsWith("legends.xml.gz"))
     .map((x) => path.join(TEMP_DIR, x));
 
   if (!legendsFiles.length) {
-    throw new Error(`No compressable legends files found in ${TEMP_DIR}`);
+    throw new Error(`No decompressable files found in ${TEMP_DIR}`);
   }
 
   const stats = await Promise.all(
@@ -49,12 +49,12 @@ void (async () => {
         )}`,
         value: { filepath, stats },
       })),
-    message: "Select file to compress:",
+    message: "Select file to decompress:",
   });
 
   const dest = await input({
-    default: selectedFile.filepath.concat(".gz"),
-    message: "Compress as:",
+    default: selectedFile.filepath.slice(0, -3),
+    message: "Decompress as:",
     prefill: "editable",
     required: true,
     validate: async (dest) =>
@@ -68,15 +68,15 @@ void (async () => {
     recursive: true,
   });
 
-  spinner.start("Compressing...");
+  spinner.start("Decompressing...");
 
   const { timeTakenMs } = await measureTimeTaken(() =>
-    gzip(selectedFile.filepath, dest),
+    gunzip(selectedFile.filepath, dest),
   );
 
   const { size: destFileSize } = await fs.stat(dest);
 
   spinner.succeed(
-    `${green(`File compressed as ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`)}`,
+    `${green(`File decompressed to ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`)}`,
   );
 })();

@@ -1,17 +1,22 @@
 import "./TerminationHandler";
 
+import type { Stats } from "node:fs";
+
 import { input, select } from "@inquirer/prompts";
-import XMLParser from "@nodable/flexible-xml-parser";
-import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
-import { createReadStream, createWriteStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 import { TEMP_DIR } from "~/dirname";
 
 import { spinner } from "./spinner";
-import { bytesToMB, green, grey, measureTimeTaken, msToSeconds } from "./utils";
-import { XmlSanitizerStream } from "./XmlSanitizer";
+import {
+  bytesToMB,
+  green,
+  grey,
+  gzip,
+  measureTimeTaken,
+  msToSeconds,
+} from "./utils";
 
 void (async () => {
   const dirContent = await fs.readdir(TEMP_DIR, {
@@ -23,7 +28,7 @@ void (async () => {
     .map((x) => path.join(TEMP_DIR, x));
 
   if (!legendsFiles.length) {
-    throw new Error(`No transformable legends files found in ${TEMP_DIR}`);
+    throw new Error(`No compressable files found in ${TEMP_DIR}`);
   }
 
   const stats = await Promise.all(
@@ -38,21 +43,21 @@ void (async () => {
       .sort(([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs)
       .map(([filepath, stats]) => ({
         name: `${filepath} ${grey(
-          `${bytesToMB(stats.size)}, last modified ${new Date(
+          `(${bytesToMB(stats.size)}, last modified ${new Date(
             stats.mtimeMs,
-          ).toLocaleString()}`,
+          ).toLocaleString()})`,
         )}`,
         value: { filepath, stats },
       })),
-    message: "Select file to transform into JSON:",
+    message: "Select file to compress:",
   });
 
   const dest = await input({
-    default: selectedFile.filepath.slice(0, -3).concat("json"),
-    message: "Transform as:",
+    default: selectedFile.filepath.concat(".gz"),
+    message: "Compress as:",
     prefill: "editable",
     required: true,
-    validate: (dest) =>
+    validate: async (dest) =>
       fs
         .access(dest, fs.constants.F_OK)
         .then(() => `${dest} already exists`)
@@ -63,28 +68,15 @@ void (async () => {
     recursive: true,
   });
 
-  const output = createWriteStream(dest, { encoding: "utf-8" });
-
-  const parser = new XMLParser({
-    OutputBuilder: new SequentialStreamBuilderFactory({
-      stream: output,
-    }),
-    skip: {
-      declaration: true,
-    },
-  });
-
-  spinner.start("Transforming...");
+  spinner.start("Compressing...");
 
   const { timeTakenMs } = await measureTimeTaken(() =>
-    parser.parseStream(
-      createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
-    ),
+    gzip(selectedFile.filepath, dest),
   );
 
   const { size: destFileSize } = await fs.stat(dest);
 
   spinner.succeed(
-    `${green(`File transformed to ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(destFileSize)})`)}`,
+    `${green(`File compressed as ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`)}`,
   );
 })();

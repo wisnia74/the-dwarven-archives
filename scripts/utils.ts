@@ -17,11 +17,11 @@ export const bytesToMB = (val: number): string =>
 
 export const measureTimeTaken = async <T>(
   callback: () => Promise<T> | T,
-): Promise<{ result: T; timeTakenMs: number }> => {
+): Promise<{ returnValue: T; timeTakenMs: number }> => {
   const start = performance.now();
-  const result = await callback();
+  const returnValue = await callback();
   const timeTakenMs = performance.now() - start;
-  return { result, timeTakenMs };
+  return { returnValue, timeTakenMs };
 };
 
 export const sortObjectKeys = (
@@ -40,7 +40,7 @@ export const sortObjectKeys = (
       ]),
   );
 
-export const copyFile = async (
+export const copy = async (
   source: PathLike,
   dest: PathLike,
 ): Promise<PathLike> => {
