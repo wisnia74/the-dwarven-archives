@@ -45,7 +45,7 @@ void (async () => {
         )}`,
         value: { filepath, stats },
       })),
-    message: "Select file to transform into JSON schema:",
+    message: "Select file to transform into schema:",
   });
 
   const dest = await input({

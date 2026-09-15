@@ -16,7 +16,7 @@
     "scripts:compress-legends-file": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.compressLegendsFile.ts",
     "scripts:copy-legends-file": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.copyLegendsFile.ts",
     "scripts:decompress-legends-file": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.decompressLegendsFile.ts",
-    "scripts:legends-file-to-json-schema": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.legendsFileToJsonSchema.ts",
+    "scripts:legends-file-to-schema": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.legendsFileToSchema.ts",
     "scripts:legends-file-to-json": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.legendsFileToJson.ts",
     "test:watch": "vitest -w",
     "test": "vitest",
