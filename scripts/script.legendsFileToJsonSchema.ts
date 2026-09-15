@@ -5,6 +5,7 @@ import XMLParser from "@nodable/flexible-xml-parser";
 import { createReadStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import prettier from "prettier";
 
 import { TEMP_DIR } from "~/dirname";
 
@@ -64,7 +65,7 @@ void (async () => {
   });
 
   const parser = new XMLParser({
-    OutputBuilder: new SchemaBuilderFactory({}),
+    OutputBuilder: new SchemaBuilderFactory({ space: 2 }),
     skip: {
       declaration: true,
     },
@@ -79,7 +80,14 @@ void (async () => {
     ),
   );
 
-  await fs.writeFile(dest, result as string);
+  await fs.writeFile(
+    dest,
+    await prettier.format(result as string, {
+      parser: "json",
+      tabWidth: 2,
+      useTabs: false,
+    }),
+  );
 
   const { size: destFileSize } = await fs.stat(dest);
 
