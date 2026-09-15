@@ -1,5 +1,6 @@
 import type { PathLike } from "node:fs";
 
+import assert from "node:assert/strict";
 import { createReadStream, createWriteStream } from "node:fs";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
@@ -24,21 +25,45 @@ export const measureTimeTaken = async <T>(
   return { returnValue, timeTakenMs };
 };
 
-export const sortObjectKeys = (
+export const sortNestedObjectKeys = (
   obj: Record<string, unknown>,
 ): Record<string, unknown> =>
   Object.fromEntries(
-    Object.entries(obj)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, value]) => [
-        key,
-        value !== null && typeof value === "object" && !Array.isArray(value) ?
-          Object.fromEntries(
-            Object.entries(value).sort(([a], [b]) => a.localeCompare(b)),
-          )
-        : value,
-      ]),
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      typeof value === "object" && value !== null ?
+        Object.fromEntries(
+          Object.entries(value).sort(([a], [b]) => a.localeCompare(b)),
+        )
+      : value,
+    ]),
   );
+
+export const isObject = (val: unknown): val is Record<string, unknown> =>
+  typeof val === "object" && val !== null;
+
+export const assertActualIsSubsetOfExpected = (
+  actual: Record<string, unknown>,
+  expected: Record<string, unknown>,
+): void => {
+  for (const [key, value] of Object.entries(actual)) {
+    assert.ok(Object.hasOwn(expected, key), `Missing key: ${key}`);
+
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [nestedKey, nestedValue] of Object.entries(value)) {
+        assert.ok(isObject(expected[key]));
+        assert.ok(
+          Object.hasOwn(expected[key], nestedKey),
+          `Missing key: ${key}.${nestedKey}`,
+        );
+
+        assert.deepStrictEqual(expected[key][nestedKey], nestedValue);
+      }
+    } else {
+      assert.deepStrictEqual(expected[key], value);
+    }
+  }
+};
 
 export const copy = async (
   source: PathLike,

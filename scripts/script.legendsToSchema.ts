@@ -20,16 +20,16 @@ void (async () => {
     recursive: true,
   });
 
-  const legendsFiles = dirContent
+  const files = dirContent
     .filter((x) => x.endsWith("legends.xml"))
     .map((x) => path.join(TEMP_DIR, x));
 
-  if (!legendsFiles.length) {
+  if (!files.length) {
     throw new Error(`No transformable files found in ${TEMP_DIR}`);
   }
 
   const stats = await Promise.all(
-    legendsFiles.map(async (filepath): Promise<[string, Stats]> => [
+    files.map(async (filepath): Promise<[string, Stats]> => [
       filepath,
       await fs.stat(filepath),
     ]),

@@ -26,7 +26,7 @@
     }
   },
   "include": [
-    "global/**/*",
+    "lib/**/*",
     "scripts/**/*",
     "dirname.ts",
     "eslint.config.js",

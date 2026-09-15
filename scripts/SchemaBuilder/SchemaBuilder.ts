@@ -4,7 +4,7 @@ import {
 } from "@nodable/base-output-builder";
 import assert from "node:assert/strict";
 
-import { sortObjectKeys } from "../utils";
+import { isObject, sortNestedObjectKeys } from "~/scripts/utils";
 
 export type SerializableValue =
   Map<string, SerializableValue> | Set<string> | string;
@@ -25,9 +25,6 @@ export const toStringifiableValue = (value: SerializableValue): unknown => {
 
   return value;
 };
-
-const isObject = (val: unknown): val is Record<string, unknown> =>
-  typeof val === "object" && val !== null;
 
 export class SchemaBuilder extends BaseOutputBuilder {
   private currentFirstChildElement = "";
@@ -107,7 +104,7 @@ export class SchemaBuilder extends BaseOutputBuilder {
     const stringifiableSchema = toStringifiableValue(this.schema);
     assert.ok(isObject(stringifiableSchema));
 
-    return JSON.stringify(sortObjectKeys(stringifiableSchema));
+    return JSON.stringify(sortNestedObjectKeys(stringifiableSchema));
   }
 }
 

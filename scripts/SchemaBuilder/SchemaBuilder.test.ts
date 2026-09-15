@@ -5,7 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { __dirname } from "~/dirname";
-import globalLegendsSchema from "~/global/legends.schema.json";
+import globalLegendsSchema from "~/lib/legends.schema.json";
 import { XmlSanitizerStream } from "~/scripts/XmlSanitizer";
 
 import {

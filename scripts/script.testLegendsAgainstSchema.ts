@@ -8,21 +8,37 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import prettier from "prettier";
 
-import globalLegendsSchema from "~/global/legends.schema.json";
+import { TEMP_DIR } from "~/dirname";
+import globalSchema from "~/lib/legends.schema.json";
 
 import { getConfig } from "./config";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { spinner } from "./spinner";
-import { bytesToMB, green, grey, measureTimeTaken, msToSeconds } from "./utils";
+import {
+  assertActualIsSubsetOfExpected,
+  bytesToMB,
+  green,
+  grey,
+  isObject,
+  measureTimeTaken,
+  msToSeconds,
+} from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 void (async () => {
   const config = await getConfig();
 
-  const dirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-  const files = dirContent
+  const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
+  const dfDirFiles = dfDirContent
     .filter((x) => x.endsWith(".xml"))
     .map((x) => path.join(config.DWARF_FORTRESS_DIR, x));
+
+  const tempDirContent = await fs.readdir(TEMP_DIR);
+  const tempDirFiles = tempDirContent
+    .filter((x) => x.endsWith(".xml"))
+    .map((x) => path.join(TEMP_DIR, x));
+
+  const files = [...dfDirFiles, ...tempDirFiles];
 
   if (!files.length) {
     throw new Error(`No legends files found in ${config.DWARF_FORTRESS_DIR}`);
@@ -67,18 +83,20 @@ void (async () => {
 
   assert.ok(typeof returnValue === "string");
 
-  assert.deepEqual(
-    JSON.parse(
-      await prettier.format(returnValue, {
-        parser: "json",
-        tabWidth: 2,
-        useTabs: false,
-      }),
-    ),
-    globalLegendsSchema,
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const schema = JSON.parse(
+    await prettier.format(returnValue, {
+      parser: "json",
+      tabWidth: 2,
+      useTabs: false,
+    }),
   );
 
+  assert.ok(isObject(schema));
+
+  assertActualIsSubsetOfExpected(schema, globalSchema);
+
   spinner.succeed(
-    `${green(`${selectedFile.filepath} is a subset of the global schema`)} ${grey(`(compared in ${msToSeconds(timeTakenMs)})`)}`,
+    `${green(`Schema of ${selectedFile.filepath} is a subset of the global schema`)} ${grey(`(compared in ${msToSeconds(timeTakenMs)})`)}`,
   );
 })();
