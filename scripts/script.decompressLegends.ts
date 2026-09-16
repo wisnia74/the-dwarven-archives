@@ -8,6 +8,7 @@ import path from "node:path";
 
 import { TEMP_DIR } from "~/dirname";
 
+import { getConfig } from "./config";
 import { spinner } from "./spinner";
 import {
   bytesToMB,
@@ -19,36 +20,56 @@ import {
 } from "./utils";
 
 void (async () => {
-  const dirContent = await fs.readdir(TEMP_DIR, {
-    recursive: true,
-  });
+  const config = await getConfig();
 
-  const files = dirContent
-    .filter((x) => x.endsWith("legends.xml.gz"))
-    .map((x) => path.join(TEMP_DIR, x));
+  const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
+  const dfDirFiles = await Promise.all(
+    dfDirContent
+      .filter((x) => x.endsWith(".xml.gz"))
+      .map(async (x): Promise<[string, Stats]> => {
+        const filepath = path.join(config.DWARF_FORTRESS_DIR, x);
 
-  if (!files.length) {
-    throw new Error(`No decompressable legends files found in ${TEMP_DIR}`);
-  }
-
-  const stats = await Promise.all(
-    files.map(async (filepath): Promise<[string, Stats]> => [
-      filepath,
-      await fs.stat(filepath),
-    ]),
+        return [filepath, await fs.stat(filepath)];
+      }),
   );
 
+  const tempDirContent = await fs.readdir(TEMP_DIR, {
+    recursive: true,
+  });
+  const tempDirFiles = await Promise.all(
+    tempDirContent
+      .filter((x) => x.endsWith(".xml.gz"))
+      .map(async (x): Promise<[string, Stats]> => {
+        const filepath = path.join(TEMP_DIR, x);
+
+        return [filepath, await fs.stat(filepath)];
+      }),
+  );
+
+  const files = [
+    ...dfDirFiles.sort(
+      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
+    ),
+    ...tempDirFiles.sort(
+      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
+    ),
+  ];
+
+  if (!files.length) {
+    throw new Error(
+      `No decompressable legends files found neither in ${config.DWARF_FORTRESS_DIR} nor in ${TEMP_DIR}`,
+    );
+  }
+
   const selectedFile = await select({
-    choices: stats
-      .sort(([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs)
-      .map(([filepath, stats]) => ({
-        name: `${filepath} ${grey(
-          `(${bytesToMB(stats.size)}, last modified ${new Date(
-            stats.mtimeMs,
-          ).toLocaleString()})`,
-        )}`,
-        value: { filepath, stats },
-      })),
+    choices: files.map(([filepath, stats]) => ({
+      name: `${filepath} ${grey(
+        `(${bytesToMB(stats.size)}, last modified ${new Date(
+          stats.mtimeMs,
+        ).toLocaleString()})`,
+      )}`,
+      value: { filepath, stats },
+    })),
     message: "Select file to decompress:",
   });
 
