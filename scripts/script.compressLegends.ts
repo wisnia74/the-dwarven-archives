@@ -1,80 +1,30 @@
-import "./TerminationHandler";
-
-import type { Stats } from "node:fs";
-
-import { input, select } from "@inquirer/prompts";
+import { input } from "@inquirer/prompts";
+import { createReadStream, createWriteStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import stream from "node:stream/promises";
+import zlib from "node:zlib";
+import ora from "ora";
 
-import { TEMP_DIR } from "~/dirname";
+import { theme } from "./components";
+import { toMb, toSeconds } from "./formatters";
+import { measureExecutionTime } from "./utils";
 
-import { getConfig } from "./config";
-import { spinner } from "./spinner";
-import {
-  bytesToMB,
-  green,
-  grey,
-  gzip,
-  measureTimeTaken,
-  msToSeconds,
-} from "./utils";
-
-void (async () => {
-  const config = await getConfig();
-
-  const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-  const dfDirFiles = await Promise.all(
-    dfDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(config.DWARF_FORTRESS_DIR, x);
-
-        return [filepath, await fs.stat(filepath)];
-      }),
+const gzip = async (source: string, dest: string): Promise<string> => {
+  await stream.pipeline(
+    createReadStream(path.resolve(source)),
+    zlib.createGzip(),
+    createWriteStream(path.resolve(dest)),
   );
 
-  const tempDirContent = await fs.readdir(TEMP_DIR, {
-    recursive: true,
-  });
-  const tempDirFiles = await Promise.all(
-    tempDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(TEMP_DIR, x);
+  return dest;
+};
 
-        return [filepath, await fs.stat(filepath)];
-      }),
-  );
-
-  const files = [
-    ...dfDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-    ...tempDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-  ];
-
-  if (!files.length) {
-    throw new Error(
-      `No compressable legends files found neither in ${config.DWARF_FORTRESS_DIR} nor in ${TEMP_DIR}`,
-    );
-  }
-
-  const selectedFile = await select({
-    choices: files.map(([filepath, stats]) => ({
-      name: `${filepath} ${grey(
-        `(${bytesToMB(stats.size)}, last modified ${new Date(
-          stats.mtimeMs,
-        ).toLocaleString()})`,
-      )}`,
-      value: { filepath, stats },
-    })),
-    message: "Select file to compress:",
-  });
+export const compressLegends = async ([filepath, stats]: [string, Stats]) => {
+  const spinner = ora();
 
   const dest = await input({
-    default: selectedFile.filepath.concat(".gz"),
+    default: filepath.concat(".gz"),
     message: "Compress as:",
     prefill: "editable",
     required: true,
@@ -89,15 +39,21 @@ void (async () => {
     recursive: true,
   });
 
-  spinner.start("Compressing...");
+  spinner.start(theme.style.highlight("Compressing..."));
 
-  const { timeTakenMs } = await measureTimeTaken(() =>
-    gzip(selectedFile.filepath, dest),
+  const { executionTimeMs } = await measureExecutionTime(() =>
+    gzip(filepath, dest),
   );
 
   const { size: destFileSize } = await fs.stat(dest);
 
   spinner.succeed(
-    `${green(`File compressed as ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(selectedFile.stats.size)} -> ${bytesToMB(destFileSize)})`)}`,
+    [
+      theme.style.message("File compressed as", "done"),
+      theme.style.highlight(dest),
+      theme.style.message("in", "done"),
+      theme.style.highlight(toSeconds(executionTimeMs)),
+      theme.style.help(`(${toMb(stats.size)} -> ${toMb(destFileSize)})`),
+    ].join(" "),
   );
-})();
+};

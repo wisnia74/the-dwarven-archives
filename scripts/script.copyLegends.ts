@@ -1,64 +1,32 @@
-import "./TerminationHandler";
-
-import type { Stats } from "node:fs";
-
-import { input, select } from "@inquirer/prompts";
+import { input } from "@inquirer/prompts";
+import { createReadStream, createWriteStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import stream from "node:stream/promises";
+import ora from "ora";
 
 import { TEMP_DIR } from "~/dirname";
 
-import { getConfig } from "./config";
-import { spinner } from "./spinner";
-import {
-  bytesToMB,
-  copy,
-  green,
-  grey,
-  measureTimeTaken,
-  msToSeconds,
-} from "./utils";
+import { theme } from "./components";
+import { toMb, toSeconds } from "./formatters";
+import { measureExecutionTime } from "./utils";
 
-void (async () => {
-  const config = await getConfig();
-
-  const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-  const dfDirFiles = await Promise.all(
-    dfDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(config.DWARF_FORTRESS_DIR, x);
-
-        return [filepath, await fs.stat(filepath)];
-      }),
+const copy = async (source: string, dest: string): Promise<string> => {
+  await stream.pipeline(
+    createReadStream(path.resolve(source)),
+    createWriteStream(path.resolve(dest)),
   );
 
-  const files = [
-    ...dfDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-  ];
+  return dest;
+};
 
-  if (!files.length) {
-    throw new Error(`No legends files found in ${config.DWARF_FORTRESS_DIR}`);
-  }
-
-  const selectedFile = await select({
-    choices: files.map(([filepath, stats]) => ({
-      name: `${filepath} ${grey(
-        `(${bytesToMB(stats.size)}, last modified ${new Date(
-          stats.mtimeMs,
-        ).toLocaleString()})`,
-      )}`,
-      value: { filepath, stats },
-    })),
-    message: "Select file to copy: ",
-  });
+export const copyLegends = async ([filepath, stats]: [string, Stats]) => {
+  const spinner = ora();
 
   const dest = await input({
     default: path.join(
       TEMP_DIR,
-      path.basename(selectedFile.filepath).replace("xml", "legends.xml"),
+      path.basename(filepath).replace("xml", "legends.xml"),
     ),
     message: "Copy as:",
     prefill: "editable",
@@ -74,13 +42,19 @@ void (async () => {
     recursive: true,
   });
 
-  spinner.start("Copying...");
+  spinner.start(theme.style.highlight("Copying..."));
 
-  const { timeTakenMs } = await measureTimeTaken(() =>
-    copy(selectedFile.filepath, dest),
+  const { executionTimeMs } = await measureExecutionTime(() =>
+    copy(filepath, dest),
   );
 
   spinner.succeed(
-    `${green(`File copied as ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(selectedFile.stats.size)})`)}`,
+    [
+      theme.style.message("File copied as", "done"),
+      theme.style.highlight(dest),
+      theme.style.message("in", "done"),
+      theme.style.highlight(toSeconds(executionTimeMs)),
+      theme.style.help(`(${toMb(stats.size)})`),
+    ].join(" "),
   );
-})();
+};

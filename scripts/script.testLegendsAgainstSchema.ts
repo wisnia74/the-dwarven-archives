@@ -1,81 +1,23 @@
-import "./TerminationHandler";
-
-import { select } from "@inquirer/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
 import assert from "node:assert/strict";
 import { createReadStream, type Stats } from "node:fs";
-import fs from "node:fs/promises";
-import path from "node:path";
+import ora from "ora";
 import prettier from "prettier";
 
-import { TEMP_DIR } from "~/dirname";
 import globalSchema from "~/lib/legends.schema.json";
 
-import { getConfig } from "./config";
+import { theme } from "./components";
+import { toSeconds } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
-import { spinner } from "./spinner";
 import {
   assertActualIsSubsetOfExpected,
-  bytesToMB,
-  green,
-  grey,
   isObject,
-  measureTimeTaken,
-  msToSeconds,
+  measureExecutionTime,
 } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-void (async () => {
-  const config = await getConfig();
-
-  const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-  const dfDirFiles = await Promise.all(
-    dfDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(config.DWARF_FORTRESS_DIR, x);
-
-        return [filepath, await fs.stat(filepath)];
-      }),
-  );
-
-  const tempDirContent = await fs.readdir(TEMP_DIR);
-  const tempDirFiles = await Promise.all(
-    tempDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(TEMP_DIR, x);
-
-        return [filepath, await fs.stat(filepath)];
-      }),
-  );
-
-  const files = [
-    ...dfDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-    ...tempDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-  ];
-
-  if (!files.length) {
-    throw new Error(
-      `No legends files found neither in ${config.DWARF_FORTRESS_DIR} nor in ${TEMP_DIR}`,
-    );
-  }
-
-  const selectedFile = await select({
-    choices: files.map(([filepath, stats]) => ({
-      name: `${filepath} ${grey(
-        `(${bytesToMB(stats.size)}, last modified ${new Date(
-          stats.mtimeMs,
-        ).toLocaleString()})`,
-      )}`,
-      value: { filepath, stats },
-    })),
-    message: "Select file to compare against global schema:",
-  });
+export const testLegendsAgainstSchema = async ([filepath]: [string, Stats]) => {
+  const spinner = ora();
 
   const parser = new XMLParser({
     OutputBuilder: new SchemaBuilderFactory(),
@@ -84,12 +26,12 @@ void (async () => {
     },
   });
 
-  spinner.start("Comparing...");
+  spinner.start("Testing...");
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const { returnValue, timeTakenMs } = await measureTimeTaken(() =>
+  const { executionTimeMs, returnValue } = await measureExecutionTime(() =>
     parser.parseStream(
-      createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
+      createReadStream(filepath).pipe(new XmlSanitizerStream()),
     ),
   );
 
@@ -109,6 +51,11 @@ void (async () => {
   assertActualIsSubsetOfExpected(schema, globalSchema);
 
   spinner.succeed(
-    `${green(`Schema of ${selectedFile.filepath} is a subset of the global schema`)} ${grey(`(compared in ${msToSeconds(timeTakenMs)})`)}`,
+    [
+      theme.style.message("Schema of", "done"),
+      theme.style.highlight(filepath),
+      theme.style.message("is a subset of the global schema", "done"),
+      theme.style.help(`(tested in ${toSeconds(executionTimeMs)})`),
+    ].join(" "),
   );
-})();
+};

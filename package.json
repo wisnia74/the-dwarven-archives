@@ -13,12 +13,7 @@
     "lint": "eslint .",
     "prepare": "husky",
     "preview": "vite preview",
-    "script:compress-legends": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.compressLegends.ts",
-    "script:copy-legends": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.copyLegends.ts",
-    "script:decompress-legends": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.decompressLegends.ts",
-    "script:test-legends-against-schema": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.testLegendsAgainstSchema.ts",
-    "script:legends-to-json": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.legendsToJson.ts",
-    "script:legends-to-schema": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/script.legendsToSchema.ts",
+    "scripts": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/main.ts",
     "test:watch": "vitest -w",
     "test": "vitest",
     "type:check": "tsc -b"
@@ -35,6 +30,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@eslint/js": "^10.0.1",
+    "@inquirer/core": "^12.0.3",
     "@inquirer/prompts": "^8.7.2",
     "@nodable/base-output-builder": "^2.0.0",
     "@nodable/flexible-xml-parser": "^1.11.3",

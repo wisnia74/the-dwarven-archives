@@ -1,75 +1,21 @@
-import "./TerminationHandler";
-
-import { input, select } from "@inquirer/prompts";
+import { input } from "@inquirer/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
 import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
 import { createReadStream, createWriteStream, type Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import ora from "ora";
 
-import { TEMP_DIR } from "~/dirname";
-
-import { getConfig } from "./config";
-import { spinner } from "./spinner";
-import { bytesToMB, green, grey, measureTimeTaken, msToSeconds } from "./utils";
+import { theme } from "./components";
+import { toMb, toSeconds } from "./formatters";
+import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-void (async () => {
-  const config = await getConfig();
-
-  const dfDirContent = await fs.readdir(config.DWARF_FORTRESS_DIR);
-  const dfDirFiles = await Promise.all(
-    dfDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(config.DWARF_FORTRESS_DIR, x);
-
-        return [filepath, await fs.stat(filepath)];
-      }),
-  );
-
-  const tempDirContent = await fs.readdir(TEMP_DIR, {
-    recursive: true,
-  });
-  const tempDirFiles = await Promise.all(
-    tempDirContent
-      .filter((x) => x.endsWith(".xml"))
-      .map(async (x): Promise<[string, Stats]> => {
-        const filepath = path.join(TEMP_DIR, x);
-
-        return [filepath, await fs.stat(filepath)];
-      }),
-  );
-
-  const files = [
-    ...dfDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-    ...tempDirFiles.sort(
-      ([, aStats], [, bStats]) => bStats.mtimeMs - aStats.mtimeMs,
-    ),
-  ];
-
-  if (!files.length) {
-    throw new Error(
-      `No transformable legends files found neither in ${config.DWARF_FORTRESS_DIR} nor in ${TEMP_DIR}`,
-    );
-  }
-
-  const selectedFile = await select({
-    choices: files.map(([filepath, stats]) => ({
-      name: `${filepath} ${grey(
-        `${bytesToMB(stats.size)}, last modified ${new Date(
-          stats.mtimeMs,
-        ).toLocaleString()}`,
-      )}`,
-      value: { filepath, stats },
-    })),
-    message: "Select file to transform into JSON:",
-  });
+export const legendsToJson = async ([filepath]: [string, Stats]) => {
+  const spinner = ora();
 
   const dest = await input({
-    default: selectedFile.filepath.slice(0, -3).concat("json"),
+    default: filepath.slice(0, -3).concat("json"),
     message: "Transform as:",
     prefill: "editable",
     required: true,
@@ -95,17 +41,23 @@ void (async () => {
     },
   });
 
-  spinner.start("Transforming...");
+  spinner.start(theme.style.highlight("Transforming..."));
 
-  const { timeTakenMs } = await measureTimeTaken(() =>
+  const { executionTimeMs } = await measureExecutionTime(() =>
     parser.parseStream(
-      createReadStream(selectedFile.filepath).pipe(new XmlSanitizerStream()),
+      createReadStream(filepath).pipe(new XmlSanitizerStream()),
     ),
   );
 
   const { size: destFileSize } = await fs.stat(dest);
 
   spinner.succeed(
-    `${green(`File transformed to ${dest} in ${msToSeconds(timeTakenMs)}`)} ${grey(`(${bytesToMB(destFileSize)})`)}`,
+    [
+      theme.style.message("File transformed as", "done"),
+      theme.style.highlight(dest),
+      theme.style.message("in", "done"),
+      theme.style.highlight(toSeconds(executionTimeMs)),
+      theme.style.help(`(${toMb(destFileSize)})`),
+    ].join(" "),
   );
-})();
+};

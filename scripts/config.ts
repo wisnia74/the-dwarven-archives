@@ -1,16 +1,15 @@
-import * as z from "zod";
+if (!process.env.DWARF_FORTRESS_DIR) {
+  throw new Error(
+    "Missing environment variable: DWARF_FORTRESS_DIR, check scripts/.env",
+  );
+}
 
-export const Config = z.object({
-  DWARF_FORTRESS_DIR: z.string(),
-});
+if (typeof process.env.DWARF_FORTRESS_DIR !== "string") {
+  throw new Error(
+    `Invalid type of environment variable DWARF_FORTRESS_DIR: expected string, received ${typeof process.env.DWARF_FORTRESS_DIR}`,
+  );
+}
 
-export const getConfig = async (): Promise<z.infer<typeof Config>> => {
-  try {
-    return await Config.parseAsync(process.env);
-  } catch (err) {
-    throw new Error(
-      err instanceof z.ZodError ? z.prettifyError(err) : String(err),
-      { cause: err },
-    );
-  }
+export const config = {
+  DWARF_FORTRESS_DIR: process.env.DWARF_FORTRESS_DIR,
 };

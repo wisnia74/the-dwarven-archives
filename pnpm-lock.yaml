@@ -36,6 +36,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.10.0)
+      '@inquirer/core':
+        specifier: ^12.0.3
+        version: 12.0.3(@types/node@24.13.4)
       '@inquirer/prompts':
         specifier: ^8.7.2
         version: 8.7.2(@types/node@24.13.4)

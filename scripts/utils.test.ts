@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { assertActualIsSubsetOfExpected, sortNestedObjectKeys } from "./utils";
 
 describe("sortNestedObjectKeys", () => {
-  it("sorts keys of nested objects inside the schema", () => {
+  it("sorts keys of nested objects", () => {
     /* eslint-disable perfectionist/sort-objects */
     const schema = {
       c: {
