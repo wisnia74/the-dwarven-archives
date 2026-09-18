@@ -116,12 +116,12 @@ export const dynamicScriptSelect = createPrompt<
     active: activeFileIndex,
     items: config.files,
     loop: true,
-    pageSize: 10,
-    renderItem: ({ isActive, item: [filepath, stats] }) => {
+    pageSize: 15,
+    renderItem: ({ index, isActive, item: [filepath, stats] }) => {
       const cursor = isActive ? "❯" : " ";
       const name = isActive ? config.theme.style.highlight(filepath) : filepath;
 
-      return `${cursor} ${name} ${config.theme.style.help(
+      return `${cursor} ${(index + 1).toString()}. ${name} ${config.theme.style.help(
         `(${toMb(stats.size)}, last modified ${new Date(
           stats.mtimeMs,
         ).toLocaleString()})`,
@@ -131,7 +131,6 @@ export const dynamicScriptSelect = createPrompt<
 
   return [
     `${prefix} ${config.theme.style.message(config.message, status)}`,
-
     page,
     `\n${helpText}`,
   ].join("\n");

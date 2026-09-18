@@ -20,7 +20,7 @@ export const gunzip = async (source: string, dest: string): Promise<string> => {
   return dest;
 };
 
-export const decompressLegends = async ([filepath, stats]: [string, Stats]) => {
+export const gunzipLegends = async ([filepath, stats]: [string, Stats]) => {
   const spinner = ora();
 
   const dest = await input({

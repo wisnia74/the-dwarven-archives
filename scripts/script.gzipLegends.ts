@@ -20,7 +20,7 @@ const gzip = async (source: string, dest: string): Promise<string> => {
   return dest;
 };
 
-export const compressLegends = async ([filepath, stats]: [string, Stats]) => {
+export const gzipLegends = async ([filepath, stats]: [string, Stats]) => {
   const spinner = ora();
 
   const dest = await input({

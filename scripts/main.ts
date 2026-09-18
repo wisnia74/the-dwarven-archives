@@ -10,17 +10,17 @@ import { TEMP_DIR } from "~/dirname";
 
 import { dynamicScriptSelect, type ScriptAction, theme } from "./components";
 import { config } from "./config";
-import { compressLegends } from "./script.compressLegends";
+import { compareLegendsAgainstGlobalSchema } from "./script.compareLegendsAgainstGlobalSchema";
 import { copyLegends } from "./script.copyLegends";
-import { decompressLegends } from "./script.decompressLegends";
 import { deleteFile } from "./script.deleteFile";
+import { gunzipLegends } from "./script.gunzipLegends";
+import { gzipLegends } from "./script.gzipLegends";
 import { legendsToJson } from "./script.legendsToJson";
 import { legendsToSchema } from "./script.legendsToSchema";
-import { testLegendsAgainstSchema } from "./script.testLegendsAgainstSchema";
 
 const scripts: ScriptAction[] = [
   {
-    helpText: `[p] copy`,
+    helpText: `[c] copy`,
     isAvailable: (filename: string) =>
       filename.startsWith(config.DWARF_FORTRESS_DIR)
       && filename.endsWith(".xml"),
@@ -28,14 +28,11 @@ const scripts: ScriptAction[] = [
       name: "copy legends",
       run: copyLegends,
     },
-    triggerKey: "p",
+    triggerKey: "c",
   },
   {
     helpText: `[x] delete`,
-    isAvailable: (filename: string) =>
-      filename.endsWith(".json")
-      || filename.endsWith(".xml")
-      || filename.endsWith(".xml.gz"),
+    isAvailable: () => true,
     script: {
       name: "delete file",
       run: deleteFile,
@@ -43,28 +40,28 @@ const scripts: ScriptAction[] = [
     triggerKey: "x",
   },
   {
-    helpText: "[c] compress",
+    helpText: "[z] gzip",
     isAvailable: (filename: string) => filename.endsWith(".xml"),
     script: {
-      name: "compress legends",
-      run: compressLegends,
+      name: "gzip legends",
+      run: gzipLegends,
     },
-    triggerKey: "c",
+    triggerKey: "z",
   },
   {
-    helpText: "[d] decompress",
-    isAvailable: (filename: string) => filename.endsWith(".xml.gz"),
+    helpText: "[u] gunzip",
+    isAvailable: (filename: string) => filename.endsWith(".gz"),
     script: {
-      name: "decompress legends",
-      run: decompressLegends,
+      name: "gunzip legends",
+      run: gunzipLegends,
     },
-    triggerKey: "d",
+    triggerKey: "u",
   },
   {
     helpText: "[j] to JSON",
     isAvailable: (filename: string) => filename.endsWith(".xml"),
     script: {
-      name: "legends to json",
+      name: "transform legends to json",
       run: legendsToJson,
     },
     triggerKey: "j",
@@ -73,19 +70,19 @@ const scripts: ScriptAction[] = [
     helpText: "[s] to schema",
     isAvailable: (filename: string) => filename.endsWith(".xml"),
     script: {
-      name: "legends to schema",
+      name: "transform legends to schema",
       run: legendsToSchema,
     },
     triggerKey: "s",
   },
   {
-    helpText: "[t] test against schema",
+    helpText: "[r] compare against global schema",
     isAvailable: (filename: string) => filename.endsWith(".xml"),
     script: {
-      name: "test legends against schema",
-      run: testLegendsAgainstSchema,
+      name: "compare legends against global schema",
+      run: compareLegendsAgainstGlobalSchema,
     },
-    triggerKey: "t",
+    triggerKey: "r",
   },
 ];
 

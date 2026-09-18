@@ -1,8 +1,5 @@
 import { styleText } from "node:util";
 
-export const cyan = (str: string) => styleText("cyan", str);
-export const green = (str: string) => styleText("green", str);
-export const grey = (str: string) => styleText("grey", str);
 export const red = (str: string) => styleText("red", str);
 
 export const toMb = (bytes: number): string =>

@@ -16,7 +16,10 @@ import {
 } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-export const testLegendsAgainstSchema = async ([filepath]: [string, Stats]) => {
+export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
+  string,
+  Stats,
+]) => {
   const spinner = ora();
 
   const parser = new XMLParser({
