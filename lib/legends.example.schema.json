@@ -52,7 +52,7 @@
     "holds_artifact": ["string"],
     "honor_entity": ["json_array"],
     "id": ["string"],
-    "interaction_knowledge": ["string"],
+    "interaction_knowledge": ["json_array"],
     "intrigue_actor": ["json_array"],
     "intrigue_plot": ["json_array"],
     "journey_pet": ["string"],

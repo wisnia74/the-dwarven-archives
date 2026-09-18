@@ -4,7 +4,7 @@ import { createReadStream, type Stats } from "node:fs";
 import ora from "ora";
 import prettier from "prettier";
 
-import globalSchema from "~/lib/legends.schema.json";
+import legendsExampleSchema from "~/lib/legends.example.schema.json";
 
 import { theme } from "./components";
 import { toSeconds } from "./formatters";
@@ -51,7 +51,7 @@ export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
 
   assert.ok(isObject(schema));
 
-  assertActualIsSubsetOfExpected(schema, globalSchema);
+  assertActualIsSubsetOfExpected(schema, legendsExampleSchema);
 
   spinner.succeed(
     [

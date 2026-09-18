@@ -70,9 +70,18 @@ export class SchemaBuilder extends BaseOutputBuilder {
     const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
     assert.ok(!!wrapperElementSchema);
 
-    wrapperElementSchema
-      .get(this.currentFirstChildElement)
-      ?.add(this.depth < 2 ? typeof text : "json_array");
+    const currentFirstChildElementSchema = wrapperElementSchema.get(
+      this.currentFirstChildElement,
+    );
+
+    if (this.depth < 2 && currentFirstChildElementSchema?.size === 0) {
+      currentFirstChildElementSchema.add(typeof text);
+
+      return;
+    }
+
+    currentFirstChildElementSchema?.clear();
+    currentFirstChildElementSchema?.add("json_array");
   }
 
   override closeElement(): void {
