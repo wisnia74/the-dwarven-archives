@@ -29,7 +29,7 @@ export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
     },
   });
 
-  spinner.start("Testing...");
+  spinner.start(theme.style.highlight("Testing..."));
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { executionTimeMs, returnValue } = await measureExecutionTime(() =>
