@@ -7,13 +7,9 @@ import prettier from "prettier";
 import legendsExampleSchema from "~/lib/legends.example.schema.json";
 
 import { theme } from "./components";
-import { toSeconds } from "./formatters";
+import { red, toSeconds, yellow } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
-import {
-  assertActualIsSubsetOfExpected,
-  isObject,
-  measureExecutionTime,
-} from "./utils";
+import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
@@ -40,18 +36,88 @@ export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
 
   assert.ok(typeof returnValue === "string");
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const schema = JSON.parse(
     await prettier.format(returnValue, {
       parser: "json",
       tabWidth: 2,
       useTabs: false,
     }),
-  );
+  ) as Record<string, Record<string, string[]>>;
 
-  assert.ok(isObject(schema));
+  const wrapperElementsMissingFromGlobalSchema: string[] = [];
+  const firstChildrenElementsMissingFromGlobalSchema: string[] = [];
+  const valueMismatchForFirstChildren: string[] = [];
 
-  assertActualIsSubsetOfExpected(schema, legendsExampleSchema);
+  for (const [wrapper, values] of Object.entries(schema)) {
+    if (!Object.keys(legendsExampleSchema).includes(wrapper)) {
+      wrapperElementsMissingFromGlobalSchema.push(
+        `- expected legendsExampleSchema.${wrapper} to be defined`,
+      );
+
+      continue;
+    }
+
+    for (const [firstChild, firstChildValues] of Object.entries(values)) {
+      // @ts-expect-error string can't be used to refer to keys of legendsExampleSchema, because it has exact keys
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      if (!Object.keys(legendsExampleSchema[wrapper]).includes(firstChild)) {
+        firstChildrenElementsMissingFromGlobalSchema.push(
+          `- expected legendsExampleSchema.${wrapper}.${firstChild} to be defined`,
+        );
+
+        continue;
+      }
+
+      if (
+        firstChildValues.some(
+          // @ts-expect-error string can't be used to refer to keys of legendsExampleSchema, because it has exact keys
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+          (val) => !legendsExampleSchema[wrapper][firstChild].includes(val),
+        )
+      ) {
+        valueMismatchForFirstChildren.push(
+          // @ts-expect-error string can't be used to refer to keys of legendsExampleSchema, because it has exact keys
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
+          `- expected ${wrapper}.${firstChild} to be ${legendsExampleSchema[wrapper][firstChild]}, received ${firstChildValues}`,
+        );
+      }
+    }
+  }
+
+  if (
+    [
+      wrapperElementsMissingFromGlobalSchema,
+      firstChildrenElementsMissingFromGlobalSchema,
+      valueMismatchForFirstChildren,
+    ].some((x) => x.length)
+  ) {
+    const failMsg = [
+      red("Comparison failed:\n"),
+      ...(wrapperElementsMissingFromGlobalSchema.length ?
+        [...wrapperElementsMissingFromGlobalSchema.map((x) => red(`\n${x}`))]
+      : []),
+      ...(firstChildrenElementsMissingFromGlobalSchema.length ?
+        [
+          ...firstChildrenElementsMissingFromGlobalSchema.map((x) =>
+            red(`\n${x}`),
+          ),
+        ]
+      : []),
+      ...(valueMismatchForFirstChildren.length ?
+        [
+          ...valueMismatchForFirstChildren.map((x) =>
+            x.includes("to be json_array, received string") ?
+              yellow(`\n${x}`)
+            : red(`\n${x}`),
+          ),
+        ]
+      : []),
+    ];
+
+    spinner.fail(failMsg.join(""));
+
+    return;
+  }
 
   spinner.succeed(
     [

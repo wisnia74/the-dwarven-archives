@@ -27,86 +27,110 @@ export const toStringifiableValue = (value: SerializableValue): unknown => {
 };
 
 export class SchemaBuilder extends BaseOutputBuilder {
-  private currentFirstChildElement = "";
-  private currentWrapperElement = "";
+  private childCountWithinCurrentWrapper = new Map<string, number>();
+  private currentChild = "";
+
+  private currentWrapper = "";
+
   private depth = -1;
+
   private readonly schema = new Map<string, Map<string, Set<string>>>();
 
   override addElement(
     tag: Parameters<BaseOutputBuilder["addElement"]>[0],
   ): void {
     if (this.depth < 0) {
-      this.currentWrapperElement = tag.name;
+      this.currentWrapper = tag.name;
 
-      if (!this.schema.has(this.currentWrapperElement)) {
-        this.schema.set(this.currentWrapperElement, new Map());
+      if (!this.schema.has(this.currentWrapper)) {
+        this.schema.set(this.currentWrapper, new Map());
       }
 
       this.depth++;
       return;
     }
 
-    if (this.currentWrapperElement === tag.name) {
+    if (this.currentWrapper === tag.name) {
       return;
     }
 
     this.depth++;
 
     if (this.depth === 1) {
-      this.currentFirstChildElement = tag.name;
+      this.currentChild = tag.name;
+
+      const childCount = this.childCountWithinCurrentWrapper.get(tag.name);
+
+      this.childCountWithinCurrentWrapper.set(
+        tag.name,
+        childCount ? childCount + 1 : 1,
+      );
     }
 
     if (this.depth < 2) {
-      const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
-      assert.ok(!!wrapperElementSchema);
+      const wrapperSchema = this.schema.get(this.currentWrapper);
+      assert.ok(!!wrapperSchema);
 
-      if (!wrapperElementSchema.has(this.currentFirstChildElement)) {
-        wrapperElementSchema.set(this.currentFirstChildElement, new Set());
+      if (!wrapperSchema.has(this.currentChild)) {
+        wrapperSchema.set(this.currentChild, new Set());
       }
     }
   }
 
   override addValue(text: Parameters<BaseOutputBuilder["addValue"]>[0]): void {
-    const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
-    assert.ok(!!wrapperElementSchema);
+    const wrapperSchema = this.schema.get(this.currentWrapper);
+    assert.ok(!!wrapperSchema);
 
-    const currentFirstChildElementSchema = wrapperElementSchema.get(
-      this.currentFirstChildElement,
-    );
+    const currentChildSchema = wrapperSchema.get(this.currentChild);
 
-    if (this.depth < 2 && currentFirstChildElementSchema?.size === 0) {
-      currentFirstChildElementSchema.add(typeof text);
+    if (this.depth > 1) {
+      currentChildSchema?.add("json_array");
 
       return;
     }
 
-    currentFirstChildElementSchema?.clear();
-    currentFirstChildElementSchema?.add("json_array");
+    const currentChildCount = this.childCountWithinCurrentWrapper.get(
+      this.currentChild,
+    );
+
+    assert.ok(!!currentChildCount);
+
+    if (currentChildCount < 2) {
+      if (!currentChildSchema?.has("json_array")) {
+        currentChildSchema?.add(typeof text);
+
+        return;
+      }
+
+      return;
+    }
+
+    currentChildSchema?.clear();
+    currentChildSchema?.add("json_array");
   }
 
   override closeElement(): void {
-    const wrapperElementSchema = this.schema.get(this.currentWrapperElement);
-    assert.ok(!!wrapperElementSchema);
+    const wrapperSchema = this.schema.get(this.currentWrapper);
+    assert.ok(!!wrapperSchema);
 
     if (this.depth >= 2) {
-      wrapperElementSchema
-        .get(this.currentFirstChildElement)
-        ?.add("json_array");
+      wrapperSchema.get(this.currentChild)?.add("json_array");
     }
 
     this.depth--;
 
     if (this.depth < 0) {
-      for (const [, types] of wrapperElementSchema) {
+      for (const [, types] of wrapperSchema) {
         if (types.size === 0) {
           types.add("boolean");
         }
       }
 
-      this.currentWrapperElement = "";
+      this.currentWrapper = "";
+      this.childCountWithinCurrentWrapper = new Map();
     }
 
-    this.currentFirstChildElement = "";
+    this.currentChild = "";
   }
 
   override getOutput(): string {

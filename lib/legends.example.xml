@@ -55,6 +55,7 @@
   <historical_figures>
     <historical_figure>
       <active_interaction>historical_figure_active_interaction</active_interaction>
+      <active_interaction>historical_figure_active_interaction</active_interaction>
       <animated />
       <animated_string>historical_figure_animated_string</animated_string>
       <appeared>historical_figure_appeared</appeared>
@@ -95,6 +96,7 @@
       </entity_squad_link>
       <force />
       <goal>historical_figure_goal</goal>
+      <goal>historical_figure_goal</goal>
       <hf_link>
         <link_type>hf_link_link_type</link_type>
         <hfid>hf_link_hfid</hfid>
@@ -103,6 +105,7 @@
         <skill>hf_skill_skill</skill>
         <total_ip>hf_skill_total_ip</total_ip>
       </hf_skill>
+      <holds_artifact>historical_figure_holds_artifact</holds_artifact>
       <holds_artifact>historical_figure_holds_artifact</holds_artifact>
       <honor_entity>
         <entity>honor_entity_entity</entity>
@@ -124,6 +127,7 @@
         <type>intrigue_plot_type</type>
         <entity_id>intrigue_plot_entity_id</entity_id>
       </intrigue_plot>
+      <journey_pet>historical_figure_journey_pet</journey_pet>
       <journey_pet>historical_figure_journey_pet</journey_pet>
       <name>historical_figure_name</name>
       <race>historical_figure_race</race>
@@ -157,6 +161,8 @@
         <property_id>site_property_property_id</property_id>
       </site_property>
       <sphere>historical_figure_sphere</sphere>
+      <sphere>historical_figure_sphere</sphere>
+      <used_identity_id>historical_figure_used_identity_id</used_identity_id>
       <used_identity_id>historical_figure_used_identity_id</used_identity_id>
       <vague_relationship>
         <vague_relationship_type />
@@ -218,7 +224,9 @@
       <coconspirator_bonus>historical_event_coconspirator_bonus</coconspirator_bonus>
       <coconspirator_hfid>historical_event_coconspirator_hfid</coconspirator_hfid>
       <competitor_hfid>historical_event_competitor_hfid</competitor_hfid>
+      <competitor_hfid>historical_event_competitor_hfid</competitor_hfid>
       <confessed_after_apb_arrest_enid>historical_event_confessed_after_apb_arrest_enid</confessed_after_apb_arrest_enid>
+      <conspirator_hfid>historical_event_conspirator_hfid</conspirator_hfid>
       <conspirator_hfid>historical_event_conspirator_hfid</conspirator_hfid>
       <contact_hfid>historical_event_contact_hfid</contact_hfid>
       <convict_is_contact />
@@ -255,8 +263,12 @@
       <entity_id>historical_event_entity_id</entity_id>
       <exiled />
       <expelled_creature>historical_event_expelled_creature</expelled_creature>
+      <expelled_creature>historical_event_expelled_creature</expelled_creature>
+      <expelled_hfid>historical_event_expelled_hfid</expelled_hfid>
       <expelled_hfid>historical_event_expelled_hfid</expelled_hfid>
       <expelled_number>historical_event_expelled_number</expelled_number>
+      <expelled_number>historical_event_expelled_number</expelled_number>
+      <expelled_pop_id>historical_event_expelled_pop_id</expelled_pop_id>
       <expelled_pop_id>historical_event_expelled_pop_id</expelled_pop_id>
       <failed_judgment_test />
       <feature_layer_id>historical_event_feature_layer_id</feature_layer_id>
@@ -270,11 +282,14 @@
       <giver_hist_figure_id>historical_event_giver_hist_figure_id</giver_hist_figure_id>
       <group_1_hfid>historical_event_group_1_hfid</group_1_hfid>
       <group_2_hfid>historical_event_group_2_hfid</group_2_hfid>
+      <group_2_hfid>historical_event_group_2_hfid</group_2_hfid>
+      <group_hfid>historical_event_group_hfid</group_hfid>
       <group_hfid>historical_event_group_hfid</group_hfid>
       <held_firm_in_interrogation />
       <hf_rep_1_of_2>historical_event_hf_rep_1_of_2</hf_rep_1_of_2>
       <hf_rep_2_of_1>historical_event_hf_rep_2_of_1</hf_rep_2_of_1>
       <hfid_target>historical_event_hfid_target</hfid_target>
+      <hfid>historical_event_hfid</hfid>
       <hfid>historical_event_hfid</hfid>
       <hfid1>historical_event_hfid1</hfid1>
       <hfid2>historical_event_hfid2</hfid2>
@@ -286,6 +301,7 @@
       <identity_id1>historical_event_identity_id1</identity_id1>
       <identity_id2>historical_event_identity_id2</identity_id2>
       <implicated_hfid>historical_event_implicated_hfid</implicated_hfid>
+      <implicated_hfid>historical_event_implicated_hfid</implicated_hfid>
       <inherited />
       <initiating_enid>historical_event_initiating_enid</initiating_enid>
       <instigator_hfid>historical_event_instigator_hfid</instigator_hfid>
@@ -294,6 +310,7 @@
       <join_entity_id>historical_event_join_entity_id</join_entity_id>
       <joined_entity_id>historical_event_joined_entity_id</joined_entity_id>
       <joiner_entity_id>historical_event_joiner_entity_id</joiner_entity_id>
+      <joining_enid>historical_event_joining_enid</joining_enid>
       <joining_enid>historical_event_joining_enid</joining_enid>
       <knowledge>historical_event_knowledge</knowledge>
       <last_owner_hfid>historical_event_last_owner_hfid</last_owner_hfid>
@@ -339,11 +356,13 @@
       <production_zone_id>historical_event_production_zone_id</production_zone_id>
       <promise_to_hfid>historical_event_promise_to_hfid</promise_to_hfid>
       <property_confiscated_from_hfid>historical_event_property_confiscated_from_hfid</property_confiscated_from_hfid>
+      <property_confiscated_from_hfid>historical_event_property_confiscated_from_hfid</property_confiscated_from_hfid>
       <purchased_unowned />
       <quality>historical_event_quality</quality>
       <ransomed_hfid>historical_event_ransomed_hfid</ransomed_hfid>
       <ransomer_hfid>historical_event_ransomer_hfid</ransomer_hfid>
       <reason_id>historical_event_reason_id</reason_id>
+      <reason>historical_event_reason</reason>
       <reason>historical_event_reason</reason>
       <rebuilt />
       <rebuilt_ruined />
@@ -430,40 +449,57 @@
     <historical_event_collection>
       <a_support_merc_enid>historical_event_collection_a_support_merc_enid</a_support_merc_enid>
       <a_support_merc_hfid>historical_event_collection_a_support_merc_hfid</a_support_merc_hfid>
+      <a_support_merc_hfid>historical_event_collection_a_support_merc_hfid</a_support_merc_hfid>
       <adjective>historical_event_collection_adjective</adjective>
       <aggressor_ent_id>historical_event_collection_aggressor_ent_id</aggressor_ent_id>
       <attacking_enid>historical_event_collection_attacking_enid</attacking_enid>
       <attacking_hfid>historical_event_collection_attacking_hfid</attacking_hfid>
+      <attacking_hfid>historical_event_collection_attacking_hfid</attacking_hfid>
       <attacking_merc_enid>historical_event_collection_attacking_merc_enid</attacking_merc_enid>
       <attacking_squad_animated />
       <attacking_squad_deaths>historical_event_collection_attacking_squad_deaths</attacking_squad_deaths>
+      <attacking_squad_deaths>historical_event_collection_attacking_squad_deaths</attacking_squad_deaths>
+      <attacking_squad_entity_pop>historical_event_collection_attacking_squad_entity_pop</attacking_squad_entity_pop>
       <attacking_squad_entity_pop>historical_event_collection_attacking_squad_entity_pop</attacking_squad_entity_pop>
       <attacking_squad_number>historical_event_collection_attacking_squad_number</attacking_squad_number>
+      <attacking_squad_number>historical_event_collection_attacking_squad_number</attacking_squad_number>
       <attacking_squad_race>historical_event_collection_attacking_squad_race</attacking_squad_race>
+      <attacking_squad_race>historical_event_collection_attacking_squad_race</attacking_squad_race>
+      <attacking_squad_site>historical_event_collection_attacking_squad_site</attacking_squad_site>
       <attacking_squad_site>historical_event_collection_attacking_squad_site</attacking_squad_site>
       <civ_id>historical_event_collection_civ_id</civ_id>
       <company_merc />
       <coords>historical_event_collection_coords</coords>
       <d_support_merc_enid>historical_event_collection_d_support_merc_enid</d_support_merc_enid>
       <d_support_merc_hfid>historical_event_collection_d_support_merc_hfid</d_support_merc_hfid>
+      <d_support_merc_hfid>historical_event_collection_d_support_merc_hfid</d_support_merc_hfid>
       <defender_ent_id>historical_event_collection_defender_ent_id</defender_ent_id>
       <defending_enid>historical_event_collection_defending_enid</defending_enid>
+      <defending_hfid>historical_event_collection_defending_hfid</defending_hfid>
       <defending_hfid>historical_event_collection_defending_hfid</defending_hfid>
       <defending_merc_enid>historical_event_collection_defending_merc_enid</defending_merc_enid>
       <defending_squad_animated />
       <defending_squad_deaths>historical_event_collection_defending_squad_deaths</defending_squad_deaths>
+      <defending_squad_deaths>historical_event_collection_defending_squad_deaths</defending_squad_deaths>
+      <defending_squad_entity_pop>historical_event_collection_defending_squad_entity_pop</defending_squad_entity_pop>
       <defending_squad_entity_pop>historical_event_collection_defending_squad_entity_pop</defending_squad_entity_pop>
       <defending_squad_number>historical_event_collection_defending_squad_number</defending_squad_number>
+      <defending_squad_number>historical_event_collection_defending_squad_number</defending_squad_number>
       <defending_squad_race>historical_event_collection_defending_squad_race</defending_squad_race>
+      <defending_squad_race>historical_event_collection_defending_squad_race</defending_squad_race>
+      <defending_squad_site>historical_event_collection_defending_squad_site</defending_squad_site>
       <defending_squad_site>historical_event_collection_defending_squad_site</defending_squad_site>
       <end_seconds72>historical_event_collection_end_seconds72</end_seconds72>
       <end_year>historical_event_collection_end_year</end_year>
       <event>historical_event_collection_event</event>
+      <event>historical_event_collection_event</event>
+      <eventcol>historical_event_collection_eventcol</eventcol>
       <eventcol>historical_event_collection_eventcol</eventcol>
       <feature_layer_id>historical_event_collection_feature_layer_id</feature_layer_id>
       <id>historical_event_collection_id</id>
       <individual_merc />
       <name>historical_event_collection_name</name>
+      <noncom_hfid>historical_event_collection_noncom_hfid</noncom_hfid>
       <noncom_hfid>historical_event_collection_noncom_hfid</noncom_hfid>
       <occasion_id>historical_event_collection_occasion_id</occasion_id>
       <ordinal>historical_event_collection_ordinal</ordinal>
@@ -491,6 +527,7 @@
       <form_id>written_content_form_id</form_id>
       <form>written_content_form</form>
       <id>written_content_id</id>
+      <style>written_content_style</style>
       <style>written_content_style</style>
       <title>written_content_title</title>
     </written_content>

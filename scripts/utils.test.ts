@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { assertActualIsSubsetOfExpected, sortNestedObjectKeys } from "./utils";
+import { sortNestedObjectKeys } from "./utils";
 
 describe("sortNestedObjectKeys", () => {
   it("sorts keys of nested objects", () => {
@@ -43,92 +43,5 @@ describe("sortNestedObjectKeys", () => {
       },
     });
     /* eslint-enable perfectionist/sort-objects */
-  });
-});
-
-describe("assertActualIsSubsetOfExpected", () => {
-  it("doesn't throw if actual object is a subset of expected object", () => {
-    expect(() => {
-      assertActualIsSubsetOfExpected(
-        {
-          a: {
-            a: 1,
-          },
-        },
-        {
-          a: {
-            a: 1,
-          },
-          b: {
-            b: 2,
-          },
-        },
-      );
-    }).not.toThrow();
-
-    expect(() => {
-      assertActualIsSubsetOfExpected(
-        {
-          a: {
-            a: [1],
-          },
-        },
-        {
-          a: {
-            a: [1],
-          },
-          b: {
-            b: 2,
-          },
-        },
-      );
-    }).not.toThrow();
-  });
-
-  it("throws is actual object isn't a subset of expected object", () => {
-    expect(() => {
-      assertActualIsSubsetOfExpected(
-        {
-          d: {
-            d: 4,
-          },
-        },
-        {
-          a: {
-            a: 1,
-          },
-        },
-      );
-    }).toThrow();
-
-    expect(() => {
-      assertActualIsSubsetOfExpected(
-        {
-          a: {
-            a: "1",
-          },
-        },
-        {
-          a: {
-            a: 1,
-          },
-        },
-      );
-    }).toThrow();
-
-    expect(() => {
-      assertActualIsSubsetOfExpected(
-        {
-          a: {
-            a: ["1"],
-          },
-        },
-        {
-          a: {
-            a: [1],
-          },
-        },
-      );
-    }).toThrow();
   });
 });
