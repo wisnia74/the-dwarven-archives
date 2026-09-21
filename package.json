@@ -13,8 +13,8 @@
     "lint": "eslint .",
     "prepare": "husky",
     "preview": "vite preview",
-    "scripts": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/main.ts",
     "scripts:watch": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env --watch ./scripts/main.ts",
+    "scripts": "tsx --tsconfig ./tsconfig.node.json --env-file=./scripts/.env ./scripts/main.ts",
     "test:watch": "vitest -w",
     "test": "vitest",
     "type:check": "tsc -b"
