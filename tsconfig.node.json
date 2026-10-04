@@ -30,6 +30,7 @@
     "scripts/**/*",
     "dirname.ts",
     "eslint.config.js",
+    "postcss.config.cjs",
     "prettier.config.js",
     "vite.config.ts"
   ]

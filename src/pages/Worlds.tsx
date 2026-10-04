@@ -1,61 +1,38 @@
-import { useLegendsParser } from "@/hooks/useLegendsParser";
-import { useSQLiteWASM } from "@/hooks/useSQLiteWASM";
+import { useEffect } from "react";
+
+import { useOpfs } from "@/hooks/useOpfs";
+import { useSQLiteWASM } from "@/hooks/useSqliteWasm";
 
 export const Worlds = () => {
-  const { isParsing, parsedWorld, parseWorld } = useLegendsParser();
-  const { init } = useSQLiteWASM();
-  if (parsedWorld) {
-    console.log({ parsedWorld });
-  }
-
   console.log({
     isolated: window.crossOriginIsolated,
     sab: typeof SharedArrayBuffer,
     thread: "main",
   });
-  return (
-    <>
-      <input
-        onChange={(e) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          parseWorld(e.target.files![0]);
-          init();
-        }}
-        type="file"
-      />
-      {!isParsing ?
-        <p>Worker inactive</p>
-      : <p>Parsing...</p>}
-      {parsedWorld && <p>World parsed!</p>}
-      <button
-        onClick={async () => {
-          console.log(JSON.stringify(await navigator.storage.estimate()));
-          async function listOPFS() {
-            const root = await navigator.storage.getDirectory();
+  const { init } = useSQLiteWASM();
+  const { deleteEntry, getEntries } = useOpfs();
 
-            async function walk(dir: FileSystemDirectoryHandle, path = "") {
-              for await (const [name, handle] of dir.entries()) {
-                const fullPath = `${path}/${name}`;
+  useEffect(() => {
+    getEntries()
+      .then((entries) => Promise.all(entries.map(deleteEntry)))
+      .then(() => getEntries())
+      .then((x) => {
+        console.log("before: ", x);
+      })
+      .then(() => init())
+      .then((x) => {
+        console.log("result: ", x);
+      })
+      .then(() => getEntries())
+      // .then(console.log)
+      // .then(() => getEntries())
+      // .then((entries) => Promise.all(entries.map(deleteEntry)))
+      // .then(() => getEntries())
+      .then((x) => {
+        console.log("after: ", x);
+      })
+      .catch(console.error);
+  }, []);
 
-                if (handle.kind === "file") {
-                  const file = await handle.getFile();
-                  console.log(fullPath, file.size);
-                }
-
-                if (handle.kind === "directory") {
-                  await walk(handle, fullPath);
-                }
-              }
-            }
-
-            await walk(root);
-          }
-
-          await listOPFS();
-        }}
-      >
-        test
-      </button>
-    </>
-  );
+  return <div>Worlds</div>;
 };

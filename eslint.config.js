@@ -21,7 +21,7 @@ export default defineConfig([
       jseslint.configs.recommended,
       eslintPluginPerfectionist.configs["recommended-alphabetical"],
     ],
-    files: ["**/*.{js,ts,tsx,.d.ts}"],
+    files: ["**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts,d.ts}"],
     languageOptions: {
       globals: globals.browser,
     },
@@ -47,8 +47,7 @@ export default defineConfig([
       tseslint.configs.strictTypeChecked,
       tseslint.configs.stylisticTypeChecked,
     ],
-    files: ["**/*.{ts,tsx,.d.ts}"],
-    ignores: ["eslint.config.js", "prettier.config.js"],
+    files: ["**/*.{ts,tsx,cts,mts,d.ts}"],
     languageOptions: {
       parserOptions: {
         project: ["./tsconfig.node.json", "./tsconfig.app.json"],
@@ -80,7 +79,7 @@ export default defineConfig([
   },
   // Disable some rules for test files
   {
-    files: ["**/*.test.{ts,tsx}"],
+    files: ["**/*.test.{ts,tsx,cts,mts}"],
     name: "test-file-overrides",
     rules: {
       "@typescript-eslint/no-unsafe-assignment": "off",

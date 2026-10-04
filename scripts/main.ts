@@ -92,7 +92,7 @@ void (async () => {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     if (!firstRun) {
-      console.log(`\n${"─".repeat(140)}\n`);
+      console.log(`\n${"─".repeat(80)}\n`);
     }
 
     const dir = await select({

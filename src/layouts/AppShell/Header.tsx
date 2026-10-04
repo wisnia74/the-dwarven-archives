@@ -18,7 +18,7 @@ export const Header = ({
           px="0"
           size="sm"
         />
-        <p>The Amber Codex</p>
+        <p>The Dwarven Archives</p>
       </Group>
     </MantineAppShell.Header>
   );
