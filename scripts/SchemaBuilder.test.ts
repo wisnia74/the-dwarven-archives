@@ -1,5 +1,3 @@
-import XMLParser from "@nodable/flexible-xml-parser";
-import assert from "node:assert/strict";
 import { createReadStream } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -13,6 +11,7 @@ import {
   type SerializableValue,
   toStringifiableValue,
 } from "./SchemaBuilder";
+import { TypedXmlParser } from "./TypedXmlParser";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 describe("toStringifiableValue", () => {
@@ -39,7 +38,7 @@ describe("toStringifiableValue", () => {
 
 describe("SchemaBuilder", () => {
   it("generates correct schema for legends file", async () => {
-    const parser = new XMLParser({
+    const parser = new TypedXmlParser({
       OutputBuilder: new SchemaBuilderFactory({}),
       skip: {
         declaration: true,
@@ -51,7 +50,6 @@ describe("SchemaBuilder", () => {
         new XmlSanitizerStream(),
       ),
     );
-    assert.ok(typeof result === "string");
 
     expect(JSON.parse(result)).toStrictEqual(legendsExampleSchema);
   });

@@ -1,5 +1,3 @@
-import XMLParser from "@nodable/flexible-xml-parser";
-import assert from "node:assert/strict";
 import { createReadStream } from "node:fs";
 import ora from "ora";
 import prettier from "prettier";
@@ -9,13 +7,14 @@ import legendsExampleSchema from "~/lib/legends.example.schema.json";
 import { red, toSeconds, yellow } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { type Script, theme } from "./Script";
+import { TypedXmlParser } from "./TypedXmlParser";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 const exec: Script["exec"] = async ([filepath]) => {
   const spinner = ora();
 
-  const parser = new XMLParser({
+  const parser = new TypedXmlParser({
     OutputBuilder: new SchemaBuilderFactory(),
     skip: {
       declaration: true,
@@ -24,14 +23,11 @@ const exec: Script["exec"] = async ([filepath]) => {
 
   spinner.start(theme.style.highlight("Testing..."));
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { executionTimeMs, returnValue } = await measureExecutionTime(() =>
     parser.parseStream(
       createReadStream(filepath).pipe(new XmlSanitizerStream()),
     ),
   );
-
-  assert.ok(typeof returnValue === "string");
 
   const schema = JSON.parse(
     await prettier.format(returnValue, {

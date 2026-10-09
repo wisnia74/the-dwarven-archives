@@ -1,5 +1,4 @@
 import { input } from "@inquirer/prompts";
-import XMLParser from "@nodable/flexible-xml-parser";
 import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
 import { createReadStream, createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
@@ -8,6 +7,7 @@ import ora from "ora";
 
 import { toMb, toSeconds } from "./formatters";
 import { type Script, theme } from "./Script";
+import { TypedXmlParser } from "./TypedXmlParser";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
@@ -32,7 +32,7 @@ const exec: Script["exec"] = async ([filepath]) => {
 
   const output = createWriteStream(dest, { encoding: "utf-8" });
 
-  const parser = new XMLParser({
+  const parser = new TypedXmlParser({
     OutputBuilder: new SequentialStreamBuilderFactory({
       stream: output,
     }),

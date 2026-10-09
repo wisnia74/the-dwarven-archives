@@ -1,6 +1,4 @@
 import { input } from "@inquirer/prompts";
-import XMLParser from "@nodable/flexible-xml-parser";
-import assert from "node:assert/strict";
 import { createReadStream } from "node:fs";
 import { access, constants, mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
@@ -10,6 +8,7 @@ import prettier from "prettier";
 import { toMb, toSeconds } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { type Script, theme } from "./Script";
+import { TypedXmlParser } from "./TypedXmlParser";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
@@ -31,7 +30,7 @@ const exec: Script["exec"] = async ([filepath]) => {
     recursive: true,
   });
 
-  const parser = new XMLParser({
+  const parser = new TypedXmlParser({
     OutputBuilder: new SchemaBuilderFactory(),
     skip: {
       declaration: true,
@@ -40,14 +39,11 @@ const exec: Script["exec"] = async ([filepath]) => {
 
   spinner.start(theme.style.highlight("Transforming..."));
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { executionTimeMs, returnValue } = await measureExecutionTime(() =>
     parser.parseStream(
       createReadStream(filepath).pipe(new XmlSanitizerStream()),
     ),
   );
-
-  assert.ok(typeof returnValue === "string");
 
   await writeFile(
     dest,
