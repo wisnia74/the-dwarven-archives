@@ -28,7 +28,7 @@ const exec: Script["exec"] = async ([filepath]) => {
   );
 };
 
-export const deleteFile = {
+export const deleteFile: Script = {
   exec,
   helpText: `[x] delete`,
   isAvailable: () => true,

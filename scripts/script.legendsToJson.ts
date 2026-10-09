@@ -62,7 +62,7 @@ const exec: Script["exec"] = async ([filepath]) => {
   );
 };
 
-export const legendsToJson = {
+export const legendsToJson: Script = {
   exec,
   helpText: "[j] to JSON",
   isAvailable: (filename: string) => filename.endsWith(".xml"),

@@ -126,7 +126,7 @@ const exec: Script["exec"] = async ([filepath]) => {
   );
 };
 
-export const compareLegendsAgainstGlobalSchema = {
+export const compareLegendsAgainstGlobalSchema: Script = {
   exec,
   helpText: "[r] compare against global schema",
   isAvailable: (filename: string) => filename.endsWith(".xml"),

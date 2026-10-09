@@ -52,7 +52,7 @@ const exec: Script["exec"] = async ([filepath, stats]) => {
   );
 };
 
-export const gzipLegends = {
+export const gzipLegends: Script = {
   exec,
   helpText: "[z] gzip",
   isAvailable: (filename: string) => filename.endsWith(".xml"),

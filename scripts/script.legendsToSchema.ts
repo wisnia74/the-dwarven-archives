@@ -71,7 +71,7 @@ const exec: Script["exec"] = async ([filepath]) => {
   );
 };
 
-export const legendsToSchema = {
+export const legendsToSchema: Script = {
   exec,
   helpText: "[s] to schema",
   isAvailable: (filename: string) => filename.endsWith(".xml"),
