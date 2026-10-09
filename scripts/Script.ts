@@ -1,5 +1,8 @@
-import type { KeypressEvent } from "@inquirer/core";
 import type { Stats } from "node:fs";
+
+import { type KeypressEvent, makeTheme } from "@inquirer/core";
+
+export const theme = makeTheme();
 
 export interface Script {
   exec: ([filepath, stats]: [string, Stats]) => Promise<void> | void;

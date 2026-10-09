@@ -6,10 +6,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import ora from "ora";
 
-import type { Script } from "./Script";
-
-import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
+import { type Script, theme } from "./Script";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 

@@ -9,7 +9,8 @@ import path from "node:path";
 import { TEMP_DIR } from "~/dirname";
 
 import { config } from "./config";
-import { dynamicScriptSelect, theme } from "./dynamicScriptSelect";
+import { dynamicScriptSelect } from "./dynamicScriptSelect";
+import { theme } from "./Script";
 import { compareLegendsAgainstGlobalSchema } from "./script.compareLegendsAgainstGlobalSchema";
 import { copyLegends } from "./script.copyLegends";
 import { deleteFile } from "./script.deleteFile";

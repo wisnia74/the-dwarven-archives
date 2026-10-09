@@ -7,11 +7,9 @@ import { dirname } from "node:path";
 import ora from "ora";
 import prettier from "prettier";
 
-import type { Script } from "./Script";
-
-import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
+import { type Script, theme } from "./Script";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 

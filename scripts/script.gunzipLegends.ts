@@ -6,10 +6,8 @@ import stream from "node:stream/promises";
 import zlib from "node:zlib";
 import ora from "ora";
 
-import type { Script } from "./Script";
-
-import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
+import { type Script, theme } from "./Script";
 import { measureExecutionTime } from "./utils";
 
 const exec: Script["exec"] = async ([filepath, stats]) => {

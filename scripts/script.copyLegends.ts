@@ -7,11 +7,9 @@ import ora from "ora";
 
 import { TEMP_DIR } from "~/dirname";
 
-import type { Script } from "./Script";
-
 import { config } from "./config";
-import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
+import { type Script, theme } from "./Script";
 import { measureExecutionTime } from "./utils";
 
 const exec: Script["exec"] = async ([filepath, stats]) => {

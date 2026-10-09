@@ -2,9 +2,7 @@ import { confirm } from "@inquirer/prompts";
 import fs from "fs/promises";
 import ora from "ora";
 
-import type { Script } from "./Script";
-
-import { theme } from "./dynamicScriptSelect";
+import { type Script, theme } from "./Script";
 
 const exec: Script["exec"] = async ([filepath]) => {
   const spinner = ora();

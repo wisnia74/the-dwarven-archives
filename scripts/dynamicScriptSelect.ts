@@ -4,7 +4,6 @@ import {
   createPrompt,
   isDownKey,
   isUpKey,
-  makeTheme,
   type Status,
   type Theme,
   useKeypress,
@@ -16,8 +15,6 @@ import {
 import type { Script } from "./Script";
 
 import { toMb } from "./formatters";
-
-export const theme = makeTheme();
 
 interface ScriptPromptConfig {
   files: [string, Stats][];
@@ -40,7 +37,7 @@ export const dynamicScriptSelect = createPrompt<
     config.files.length === 0 ? "done" : "idle",
   );
 
-  const prefix = usePrefix({ status, theme });
+  const prefix = usePrefix({ status, theme: config.theme });
 
   if (status === "done" && config.files.length === 0) {
     done(null);
