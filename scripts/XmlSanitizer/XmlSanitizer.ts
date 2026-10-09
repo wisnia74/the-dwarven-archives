@@ -101,7 +101,7 @@ export class XmlSanitizerStream extends Transform {
   }
 
   /**
-   * Doesn't use `encoding` param for decoding - hardcoded to `cp437` because it's meant to be used only
+   * `encoding` param is unused for decoding - functoin body hardcodes it to `cp437` because it's meant to be used only
    * for legends files and we know encoding of those beforehand.
    */
   override _transform(
