@@ -4,7 +4,7 @@ import type ora from "ora";
 import { red } from "./formatters";
 
 /**
- * Handle uncaught errors gracefully for {@link inquirer}, rethrow unknown errors.
+ * Handle uncaught errors gracefully (mostly for {@link inquirer}), rethrow unknown errors.
  */
 const handleUncaughtErrors = (error: unknown) => {
   if (!(error instanceof Error && error.name === "ExitPromptError")) {
@@ -21,7 +21,7 @@ process.on("uncaughtException", handleUncaughtErrors);
 process.on("unhandledRejection", handleUncaughtErrors);
 
 /**
- * Handle Unix signals gracefully for {@link ora} and exit the process.
+ * Handle Unix signals gracefully (mostly for {@link ora}) and exit the process.
  */
 const handleUnixSignals = (exitCode: number) => {
   process.exit(exitCode);
