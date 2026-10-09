@@ -1,11 +1,12 @@
 import { confirm } from "@inquirer/prompts";
 import fs from "fs/promises";
-import { type Stats } from "node:fs";
 import ora from "ora";
 
-import { theme } from "./components";
+import type { Script } from "./Script";
 
-export const deleteFile = async ([filepath]: [string, Stats]) => {
+import { theme } from "./dynamicScriptSelect";
+
+const exec: Script["exec"] = async ([filepath]) => {
   const spinner = ora();
 
   const confirmation = await confirm({
@@ -27,4 +28,12 @@ export const deleteFile = async ([filepath]: [string, Stats]) => {
       theme.style.message("deleted", "done"),
     ].join(" "),
   );
+};
+
+export const deleteFile = {
+  exec,
+  helpText: `[x] delete`,
+  isAvailable: () => true,
+  name: "delete file",
+  triggerKey: "x",
 };

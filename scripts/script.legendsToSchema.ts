@@ -1,19 +1,21 @@
 import { input } from "@inquirer/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
 import assert from "node:assert/strict";
-import { createReadStream, type Stats } from "node:fs";
+import { createReadStream } from "node:fs";
 import { access, constants, mkdir, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import ora from "ora";
 import prettier from "prettier";
 
-import { theme } from "./components";
+import type { Script } from "./Script";
+
+import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-export const legendsToSchema = async ([filepath]: [string, Stats]) => {
+const exec: Script["exec"] = async ([filepath]) => {
   const spinner = ora();
 
   const dest = await input({
@@ -69,4 +71,12 @@ export const legendsToSchema = async ([filepath]: [string, Stats]) => {
       theme.style.help(`(${toMb(destFileSize)})`),
     ].join(" "),
   );
+};
+
+export const legendsToSchema = {
+  exec,
+  helpText: "[s] to schema",
+  isAvailable: (filename: string) => filename.endsWith(".xml"),
+  name: "transform legends to schema",
+  triggerKey: "s",
 };

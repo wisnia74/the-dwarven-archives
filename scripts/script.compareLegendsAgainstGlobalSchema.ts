@@ -1,21 +1,20 @@
 import XMLParser from "@nodable/flexible-xml-parser";
 import assert from "node:assert/strict";
-import { createReadStream, type Stats } from "node:fs";
+import { createReadStream } from "node:fs";
 import ora from "ora";
 import prettier from "prettier";
 
 import legendsExampleSchema from "~/lib/legends.example.schema.json";
 
-import { theme } from "./components";
+import type { Script } from "./Script";
+
+import { theme } from "./dynamicScriptSelect";
 import { red, toSeconds, yellow } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
-  string,
-  Stats,
-]) => {
+const exec: Script["exec"] = async ([filepath]) => {
   const spinner = ora();
 
   const parser = new XMLParser({
@@ -127,4 +126,12 @@ export const compareLegendsAgainstGlobalSchema = async ([filepath]: [
       theme.style.help(`(tested in ${toSeconds(executionTimeMs)})`),
     ].join(" "),
   );
+};
+
+export const compareLegendsAgainstGlobalSchema = {
+  exec,
+  helpText: "[r] compare against global schema",
+  isAvailable: (filename: string) => filename.endsWith(".xml"),
+  name: "compare legends against global schema",
+  triggerKey: "r",
 };

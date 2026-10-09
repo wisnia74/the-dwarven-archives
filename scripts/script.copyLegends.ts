@@ -1,5 +1,5 @@
 import { input } from "@inquirer/prompts";
-import { createReadStream, createWriteStream, type Stats } from "node:fs";
+import { createReadStream, createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import stream from "node:stream/promises";
@@ -7,20 +7,14 @@ import ora from "ora";
 
 import { TEMP_DIR } from "~/dirname";
 
-import { theme } from "./components";
+import type { Script } from "./Script";
+
+import { config } from "./config";
+import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
 import { measureExecutionTime } from "./utils";
 
-const copy = async (source: string, dest: string): Promise<string> => {
-  await stream.pipeline(
-    createReadStream(path.resolve(source)),
-    createWriteStream(path.resolve(dest)),
-  );
-
-  return dest;
-};
-
-export const copyLegends = async ([filepath, stats]: [string, Stats]) => {
+const exec: Script["exec"] = async ([filepath, stats]) => {
   const spinner = ora();
 
   const dest = await input({
@@ -45,7 +39,10 @@ export const copyLegends = async ([filepath, stats]: [string, Stats]) => {
   spinner.start(theme.style.highlight("Copying..."));
 
   const { executionTimeMs } = await measureExecutionTime(() =>
-    copy(filepath, dest),
+    stream.pipeline(
+      createReadStream(path.resolve(filepath)),
+      createWriteStream(path.resolve(dest)),
+    ),
   );
 
   spinner.succeed(
@@ -57,4 +54,13 @@ export const copyLegends = async ([filepath, stats]: [string, Stats]) => {
       theme.style.help(`(${toMb(stats.size)})`),
     ].join(" "),
   );
+};
+
+export const copyLegends: Script = {
+  exec,
+  helpText: `[c] copy`,
+  isAvailable: (filename: string) =>
+    filename.startsWith(config.DWARF_FORTRESS_DIR) && filename.endsWith(".xml"),
+  name: "copy legends",
+  triggerKey: "c",
 };

@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 
 import { SCHEMA_DIR } from "~/dirname";
 import legendsExampleSchema from "~/lib/legends.example.schema.json";
-import { XmlSanitizerStream } from "~/scripts/XmlSanitizer";
 
 import {
   SchemaBuilder,
@@ -14,6 +13,7 @@ import {
   type SerializableValue,
   toStringifiableValue,
 } from "./SchemaBuilder";
+import { XmlSanitizerStream } from "./XmlSanitizer";
 
 describe("toStringifiableValue", () => {
   it("converts Map containing a mix of Maps, Sets and strings to a stringifiable value", () => {

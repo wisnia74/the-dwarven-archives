@@ -1,17 +1,19 @@
 import { input } from "@inquirer/prompts";
 import XMLParser from "@nodable/flexible-xml-parser";
 import { SequentialStreamBuilderFactory } from "@nodable/sequential-stream-builder";
-import { createReadStream, createWriteStream, type Stats } from "node:fs";
+import { createReadStream, createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import ora from "ora";
 
-import { theme } from "./components";
+import type { Script } from "./Script";
+
+import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
 import { measureExecutionTime } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-export const legendsToJson = async ([filepath]: [string, Stats]) => {
+const exec: Script["exec"] = async ([filepath]) => {
   const spinner = ora();
 
   const dest = await input({
@@ -60,4 +62,12 @@ export const legendsToJson = async ([filepath]: [string, Stats]) => {
       theme.style.help(`(${toMb(destFileSize)})`),
     ].join(" "),
   );
+};
+
+export const legendsToJson = {
+  exec,
+  helpText: "[j] to JSON",
+  isAvailable: (filename: string) => filename.endsWith(".xml"),
+  name: "transform legends to json",
+  triggerKey: "j",
 };

@@ -4,7 +4,7 @@ import {
 } from "@nodable/base-output-builder";
 import assert from "node:assert/strict";
 
-import { isObject, sortNestedObjectKeys } from "~/scripts/utils";
+import { isObject, sortNestedObjectKeys } from "./utils";
 
 export type SerializableValue =
   Map<string, SerializableValue> | Set<string> | string;

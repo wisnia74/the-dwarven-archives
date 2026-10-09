@@ -8,8 +8,8 @@ import path from "node:path";
 
 import { TEMP_DIR } from "~/dirname";
 
-import { dynamicScriptSelect, type ScriptAction, theme } from "./components";
 import { config } from "./config";
+import { dynamicScriptSelect, theme } from "./dynamicScriptSelect";
 import { compareLegendsAgainstGlobalSchema } from "./script.compareLegendsAgainstGlobalSchema";
 import { copyLegends } from "./script.copyLegends";
 import { deleteFile } from "./script.deleteFile";
@@ -17,74 +17,6 @@ import { gunzipLegends } from "./script.gunzipLegends";
 import { gzipLegends } from "./script.gzipLegends";
 import { legendsToJson } from "./script.legendsToJson";
 import { legendsToSchema } from "./script.legendsToSchema";
-
-const scripts: ScriptAction[] = [
-  {
-    helpText: `[c] copy`,
-    isAvailable: (filename: string) =>
-      filename.startsWith(config.DWARF_FORTRESS_DIR)
-      && filename.endsWith(".xml"),
-    script: {
-      name: "copy legends",
-      run: copyLegends,
-    },
-    triggerKey: "c",
-  },
-  {
-    helpText: `[x] delete`,
-    isAvailable: () => true,
-    script: {
-      name: "delete file",
-      run: deleteFile,
-    },
-    triggerKey: "x",
-  },
-  {
-    helpText: "[z] gzip",
-    isAvailable: (filename: string) => filename.endsWith(".xml"),
-    script: {
-      name: "gzip legends",
-      run: gzipLegends,
-    },
-    triggerKey: "z",
-  },
-  {
-    helpText: "[u] gunzip",
-    isAvailable: (filename: string) => filename.endsWith(".gz"),
-    script: {
-      name: "gunzip legends",
-      run: gunzipLegends,
-    },
-    triggerKey: "u",
-  },
-  {
-    helpText: "[j] to JSON",
-    isAvailable: (filename: string) => filename.endsWith(".xml"),
-    script: {
-      name: "transform legends to json",
-      run: legendsToJson,
-    },
-    triggerKey: "j",
-  },
-  {
-    helpText: "[s] to schema",
-    isAvailable: (filename: string) => filename.endsWith(".xml"),
-    script: {
-      name: "transform legends to schema",
-      run: legendsToSchema,
-    },
-    triggerKey: "s",
-  },
-  {
-    helpText: "[r] compare against global schema",
-    isAvailable: (filename: string) => filename.endsWith(".xml"),
-    script: {
-      name: "compare legends against global schema",
-      run: compareLegendsAgainstGlobalSchema,
-    },
-    triggerKey: "r",
-  },
-];
 
 void (async () => {
   let firstRun = true;
@@ -123,7 +55,15 @@ void (async () => {
       files,
       message:
         "Select a file and press a button corresponding to the script you wish to run:",
-      scripts,
+      scripts: [
+        copyLegends,
+        deleteFile,
+        gzipLegends,
+        gunzipLegends,
+        legendsToJson,
+        legendsToSchema,
+        compareLegendsAgainstGlobalSchema,
+      ],
       theme,
     });
 
@@ -131,7 +71,7 @@ void (async () => {
       break;
     }
 
-    await selection.script.run(selection.file);
+    await selection.exec(selection.file);
 
     firstRun = false;
   }

@@ -4,7 +4,6 @@ import {
   createPrompt,
   isDownKey,
   isUpKey,
-  type KeypressEvent,
   makeTheme,
   type Status,
   type Theme,
@@ -20,23 +19,16 @@ import { toMb } from "./formatters";
 
 export const theme = makeTheme();
 
-export interface ScriptAction {
-  helpText: string;
-  isAvailable: (filename: string) => boolean;
-  script: Script;
-  triggerKey: KeypressEvent["name"];
-}
-
 interface ScriptPromptConfig {
   files: [string, Stats][];
   message: string;
-  scripts: ScriptAction[];
+  scripts: Script[];
   theme: Theme;
 }
 
 type ScriptPromptAnswer = {
+  exec: Script["exec"];
   file: [string, Stats];
-  script: ScriptAction["script"];
 } | null;
 
 export const dynamicScriptSelect = createPrompt<
@@ -56,21 +48,19 @@ export const dynamicScriptSelect = createPrompt<
     return `${prefix} ${config.theme.style.help("No files available")}`;
   }
 
-  const [selectedAction, setSelectedAction] = useState<null | ScriptAction>(
-    null,
-  );
+  const [selectedScript, setSelectedScript] = useState<null | Script>(null);
   const selectedFile = config.files[activeFileIndex];
 
-  if (status === "done" && !!selectedAction) {
+  if (status === "done" && !!selectedScript) {
     done({
+      exec: selectedScript.exec,
       file: selectedFile,
-      script: selectedAction.script,
     });
 
     return [
       prefix,
       `${config.theme.style.message(`Selected file: ${config.theme.style.highlight(selectedFile[0])}`, status)},`,
-      `selected script: ${config.theme.style.highlight(selectedAction.script.name)}`,
+      `selected script: ${config.theme.style.highlight(selectedScript.name)}`,
     ].join(" ");
   }
 
@@ -102,7 +92,7 @@ export const dynamicScriptSelect = createPrompt<
     }
 
     setStatus("done");
-    setSelectedAction(matchedScript);
+    setSelectedScript(matchedScript);
   });
 
   const helpText = config.theme.style.help(

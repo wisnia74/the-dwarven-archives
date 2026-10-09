@@ -1,26 +1,18 @@
 import { input } from "@inquirer/prompts";
-import { createReadStream, createWriteStream, type Stats } from "node:fs";
+import { createReadStream, createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import stream from "node:stream/promises";
 import zlib from "node:zlib";
 import ora from "ora";
 
-import { theme } from "./components";
+import type { Script } from "./Script";
+
+import { theme } from "./dynamicScriptSelect";
 import { toMb, toSeconds } from "./formatters";
 import { measureExecutionTime } from "./utils";
 
-export const gunzip = async (source: string, dest: string): Promise<string> => {
-  await stream.pipeline(
-    createReadStream(path.resolve(source)),
-    zlib.createGunzip(),
-    createWriteStream(path.resolve(dest)),
-  );
-
-  return dest;
-};
-
-export const gunzipLegends = async ([filepath, stats]: [string, Stats]) => {
+const exec: Script["exec"] = async ([filepath, stats]) => {
   const spinner = ora();
 
   const dest = await input({
@@ -42,7 +34,11 @@ export const gunzipLegends = async ([filepath, stats]: [string, Stats]) => {
   spinner.start(theme.style.highlight("Decompressing..."));
 
   const { executionTimeMs } = await measureExecutionTime(() =>
-    gunzip(filepath, dest),
+    stream.pipeline(
+      createReadStream(path.resolve(filepath)),
+      zlib.createGunzip(),
+      createWriteStream(path.resolve(dest)),
+    ),
   );
 
   const { size: destFileSize } = await fs.stat(dest);
@@ -56,4 +52,12 @@ export const gunzipLegends = async ([filepath, stats]: [string, Stats]) => {
       theme.style.help(`(${toMb(stats.size)} -> ${toMb(destFileSize)})`),
     ].join(" "),
   );
+};
+
+export const gunzipLegends: Script = {
+  exec,
+  helpText: "[u] gunzip",
+  isAvailable: (filename: string) => filename.endsWith(".gz"),
+  name: "gunzip legends",
+  triggerKey: "u",
 };
