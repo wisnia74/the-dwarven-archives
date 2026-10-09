@@ -4,7 +4,7 @@ import { createReadStream } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { LIB_DIR } from "~/dirname";
+import { SCHEMA_DIR } from "~/dirname";
 import legendsExampleSchema from "~/lib/legends.example.schema.json";
 import { XmlSanitizerStream } from "~/scripts/XmlSanitizer";
 
@@ -47,7 +47,7 @@ describe("SchemaBuilder", () => {
     });
 
     const result = await parser.parseStream(
-      createReadStream(path.join(LIB_DIR, "legends.example.xml")).pipe(
+      createReadStream(path.join(SCHEMA_DIR, "legends.example.xml")).pipe(
         new XmlSanitizerStream(),
       ),
     );
