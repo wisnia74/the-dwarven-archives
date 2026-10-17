@@ -5,10 +5,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import ora from "ora";
 
-import { toMb, toSeconds } from "./formatters";
 import { type Script, theme } from "./Script";
 import { TypedXmlParser } from "./TypedXmlParser";
-import { measureExecutionTime } from "./utils";
+import { measureExecutionTime, toMb, toSeconds } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 const exec: Script["exec"] = async ([filepath]) => {

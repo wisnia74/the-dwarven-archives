@@ -14,7 +14,7 @@ import {
 
 import type { Script } from "./Script";
 
-import { toMb } from "./formatters";
+import { toMb } from "./utils";
 
 interface ScriptPromptConfig {
   files: [string, Stats][];

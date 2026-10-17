@@ -1,7 +1,7 @@
 import type * as inquirer from "@inquirer/prompts";
 import type ora from "ora";
 
-import { red } from "./formatters";
+import { red } from "./utils";
 
 /**
  * Handle uncaught errors gracefully (mostly for {@link inquirer}), rethrow unknown errors.

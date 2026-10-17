@@ -4,11 +4,10 @@ import prettier from "prettier";
 
 import legendsExampleSchema from "~/lib/legends.example.schema.json";
 
-import { red, toSeconds, yellow } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { type Script, theme } from "./Script";
 import { TypedXmlParser } from "./TypedXmlParser";
-import { measureExecutionTime } from "./utils";
+import { measureExecutionTime, red, toSeconds, yellow } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 const exec: Script["exec"] = async ([filepath]) => {
