@@ -66,6 +66,12 @@ export const dynamicScriptSelect = createPrompt<
   );
 
   useKeypress((key) => {
+    if (key.name === "escape") {
+      done(null);
+
+      return;
+    }
+
     if (isUpKey(key)) {
       setActiveFileIndex((current) =>
         current === 0 ? config.files.length - 1 : current - 1,
@@ -94,7 +100,8 @@ export const dynamicScriptSelect = createPrompt<
 
   const helpText = config.theme.style.help(
     [
-      `↑↓ navigate`,
+      `[esc] go back`,
+      `[↑↓] navigate`,
       ...availableActions.map(({ helpText: helpName }) => helpName),
     ].join(" • "),
   );

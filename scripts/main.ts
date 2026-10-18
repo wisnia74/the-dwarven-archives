@@ -11,13 +11,12 @@ import { TEMP_DIR } from "~/dirname";
 import { config } from "./config";
 import { dynamicScriptSelect } from "./dynamicScriptSelect";
 import { theme } from "./Script";
-import { compareLegendsAgainstGlobalSchema } from "./script.compareLegendsAgainstGlobalSchema";
 import { copyLegends } from "./script.copyLegends";
 import { deleteFile } from "./script.deleteFile";
 import { gunzipLegends } from "./script.gunzipLegends";
 import { gzipLegends } from "./script.gzipLegends";
 import { legendsToJson } from "./script.legendsToJson";
-import { legendsToSchema } from "./script.legendsToSchema";
+import { parseLegends } from "./script.parseLegends";
 
 void (async () => {
   let firstRun = true;
@@ -62,18 +61,17 @@ void (async () => {
         gzipLegends,
         gunzipLegends,
         legendsToJson,
-        legendsToSchema,
-        compareLegendsAgainstGlobalSchema,
+        parseLegends,
       ],
       theme,
     });
 
+    firstRun = false;
+
     if (!selection) {
-      break;
+      continue;
     }
 
     await selection.exec(selection.file);
-
-    firstRun = false;
   }
 })();

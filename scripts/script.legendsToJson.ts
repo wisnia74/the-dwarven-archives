@@ -35,9 +35,6 @@ const exec: Script["exec"] = async ([filepath]) => {
     OutputBuilder: new SequentialStreamBuilderFactory({
       stream: output,
     }),
-    skip: {
-      declaration: true,
-    },
   });
 
   spinner.start(theme.style.highlight("Transforming..."));

@@ -25,16 +25,12 @@ export class TypedXmlParser<
 > extends XMLParser {
   declare OutputBuilder: T;
 
-  // This constructor is useless only from runtime's perspective, it allows us
-  // to bind options.OutputBuilder type to T generic field which in turn
-  // allows us to preserver .getOutput() return value type.
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
   constructor(
     options?: {
       OutputBuilder?: T;
     } & Omit<X2jOptions, "OutputBuilder">,
   ) {
-    super(options);
+    super({ ...options, skip: { ...options?.skip, declaration: true } });
   }
 
   override parseStream(
