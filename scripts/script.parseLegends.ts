@@ -4,10 +4,10 @@ import ora from "ora";
 import { LegendsParseOutputBuilderFactory } from "./LegendsParseOutputBuilder";
 import { type Script, theme } from "./Script";
 import { TypedXmlParser } from "./TypedXmlParser";
-import { measureExecutionTime, red, toSeconds, yellow } from "./utils";
+import { measureExecutionTime, red, toMb, toSeconds, yellow } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
-const exec: Script["exec"] = async ([filepath]) => {
+const exec: Script["exec"] = async ([filepath, stats]) => {
   const spinner = ora();
 
   const parser = new TypedXmlParser({
@@ -26,6 +26,7 @@ const exec: Script["exec"] = async ([filepath]) => {
   spinner.succeed(
     [
       theme.style.highlight(filepath),
+      theme.style.help(`(${toMb(stats.size)})`),
       theme.style.message("parsed", "done"),
       theme.style.message("in", "done"),
       theme.style.highlight(toSeconds(executionTimeMs)),
