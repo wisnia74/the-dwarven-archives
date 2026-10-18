@@ -3,41 +3,56 @@ import {
   BaseOutputBuilderFactory,
 } from "@nodable/base-output-builder";
 import assert from "node:assert/strict";
-import { ZodError } from "zod";
+import { fromError } from "zod-validation-error";
 
-import { regionSchema } from "~/schema/region.schema";
+import { regionSchema, undergroundRegionSchema } from "~/schema";
+
+const SUPPORTED_ELEMENTS = [
+  // "artifact",
+  // "dance_form",
+  // "entity",
+  // "entity_population",
+  // "historical_era",
+  // "historical_event_collection",
+  // "historical_event",
+  // "historicol_figure",
+  // "musical_form",
+  // "poetic_form",
+  "region",
+  // "site",
+  "underground_region",
+  // "written_content",
+] as const;
+
+const isSupportedElement = (
+  str: string,
+): str is (typeof SUPPORTED_ELEMENTS)[number] => {
+  // @ts-expect-error not sure whether I'm doing something wrong or TypeScript is being too strict with .includes()
+  return SUPPORTED_ELEMENTS.includes(str);
+};
+
+const getSchema = (
+  element: (typeof SUPPORTED_ELEMENTS)[number],
+): typeof regionSchema | typeof undergroundRegionSchema =>
+  ({
+    region: regionSchema,
+    underground_region: undergroundRegionSchema,
+  })[element];
 
 export class LegendsParseOutputBuilder extends BaseOutputBuilder {
-  SUPPORTED_ELEMENTS = [
-    // "artifact",
-    // "dance_form",
-    // "entity",
-    // "entity_population",
-    // "historical_era",
-    // "historical_event_collection",
-    // "historical_event",
-    // "historicol_figure",
-    // "musical_form",
-    // "poetic_form",
-    "region",
-    // "site",
-    // "underground_region",
-    // "written_content",
-  ] as const;
-
   private elementContent: Record<string, string> = {};
   private elementStack: string[] = [];
 
   private encounteredUnsupportedElements = new Map<string, number>();
 
-  private errors: ZodError[] = [];
+  private errors: Set<string> = new Set<string>();
 
   override addElement(
     tag: Parameters<BaseOutputBuilder["addElement"]>[0],
   ): void {
     this.elementStack.push(tag.name);
 
-    if (!this.isSupportedElement(this.elementStack[0])) {
+    if (!isSupportedElement(this.elementStack[0])) {
       const currentCount = this.encounteredUnsupportedElements.get(
         this.elementStack[0],
       );
@@ -52,7 +67,7 @@ export class LegendsParseOutputBuilder extends BaseOutputBuilder {
   }
 
   override addValue(text: Parameters<BaseOutputBuilder["addValue"]>[0]): void {
-    if (!this.isSupportedElement(this.elementStack[0])) {
+    if (!isSupportedElement(this.elementStack[0])) {
       return;
     }
 
@@ -63,14 +78,19 @@ export class LegendsParseOutputBuilder extends BaseOutputBuilder {
   }
 
   override closeElement(): void {
+    const topmostParentElement = this.elementStack[0];
+
     if (
       this.elementStack.length === 1
-      && this.isSupportedElement(this.elementStack[0])
+      && isSupportedElement(topmostParentElement)
     ) {
-      const parseResult = regionSchema.safeParse(this.elementContent);
+      const schema = getSchema(topmostParentElement);
+      const parseResult = schema.safeParse(this.elementContent);
 
       if (!parseResult.success) {
-        this.errors.push(parseResult.error);
+        this.errors.add(
+          `[${this.elementStack[0]}] ${fromError(parseResult.error).toString()}`,
+        );
       }
 
       this.elementContent = {};
@@ -80,7 +100,7 @@ export class LegendsParseOutputBuilder extends BaseOutputBuilder {
   }
 
   override getOutput():
-    | { errors: ZodError[]; success: false; warnings?: string[] }
+    | { errors: string[]; success: false; warnings?: string[] }
     | { success: true; warnings?: string[] } {
     const warnings = Array.from(
       this.encounteredUnsupportedElements.entries(),
@@ -93,7 +113,7 @@ export class LegendsParseOutputBuilder extends BaseOutputBuilder {
         ].join(" "),
     );
 
-    if (this.errors.length === 0) {
+    if (this.errors.size === 0) {
       return {
         success: true,
         ...(warnings.length ?
@@ -105,7 +125,7 @@ export class LegendsParseOutputBuilder extends BaseOutputBuilder {
     }
 
     return {
-      errors: this.errors,
+      errors: [...this.errors],
       success: false,
       ...(warnings.length ?
         {
@@ -113,13 +133,6 @@ export class LegendsParseOutputBuilder extends BaseOutputBuilder {
         }
       : {}),
     };
-  }
-
-  isSupportedElement(
-    str: string,
-  ): str is (typeof this.SUPPORTED_ELEMENTS)[number] {
-    // @ts-expect-error not sure whether I'm doing something wrong or TypeScript is being too strict with .includes()
-    return this.SUPPORTED_ELEMENTS.includes(str);
   }
 }
 

@@ -132,6 +132,9 @@ importers:
       zod:
         specifier: ^4.6.7
         version: 4.6.7
+      zod-validation-error:
+        specifier: ^5.0.0
+        version: 5.0.0(zod@4.6.7)
 
 packages:
 
@@ -1881,6 +1884,12 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
+  zod-validation-error@5.0.0:
+    resolution: {integrity: sha512-hmk+pkyKq7Q71PiWVSDUc3VfpzpvcRHZ3QPw9yEMVvmtCekaMeOHnbr3WbxfrgEnQTv6haGP4cmv0Ojmihzsxw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+
   zod@4.6.7:
     resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
@@ -3435,6 +3444,10 @@ snapshots:
   yoctocolors@2.2.0: {}
 
   zod-validation-error@4.0.2(zod@4.6.7):
+    dependencies:
+      zod: 4.6.7
+
+  zod-validation-error@5.0.0(zod@4.6.7):
     dependencies:
       zod: 4.6.7
 

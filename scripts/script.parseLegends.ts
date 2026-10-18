@@ -42,7 +42,7 @@ const exec: Script["exec"] = async ([filepath]) => {
   if (!result.success) {
     console.log(red("\nErrors:"));
     result.errors.forEach((err) => {
-      console.error(err);
+      console.error(red(err));
     });
   }
 };
