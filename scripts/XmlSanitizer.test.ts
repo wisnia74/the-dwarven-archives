@@ -109,10 +109,10 @@ describe("XmlSanitizerStream", () => {
 
     const result = stream.read();
 
-    expect(mockDecoder).toHaveBeenCalledTimes(1);
-    expect(mockDecoder).toHaveBeenCalledWith(buffer, "cp437");
-    expect(mockSanitizer).toHaveBeenCalledTimes(1);
-    expect(mockSanitizer).toHaveBeenCalledWith(`
+    expect(mockDecoder).toHaveBeenNthCalledWith(1, buffer, "cp437");
+    expect(mockSanitizer).toHaveBeenNthCalledWith(
+      1,
+      `
         
           <a>1</a>
           <b>2</b>
@@ -129,7 +129,8 @@ describe("XmlSanitizerStream", () => {
           <m>13</m>
           <n>14</n>
           <o>15</o>
-        `);
+        `,
+    );
     expect(result).toBe(`
         
           <a>1</a>
