@@ -13,6 +13,6 @@ export const regionSchema = z.object({
     "Mountains",
     "Ocean",
     "Tundra",
-    // "Wetland",
+    "Wetland",
   ]),
 });
