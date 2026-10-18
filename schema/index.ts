@@ -6,4 +6,5 @@ z.config({
 });
 
 export * from "./region.schema";
+export * from "./site.schema";
 export * from "./undergroundRegion.schema";

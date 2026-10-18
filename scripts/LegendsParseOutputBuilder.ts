@@ -5,7 +5,7 @@ import {
 import assert from "node:assert/strict";
 import { fromError } from "zod-validation-error";
 
-import { regionSchema, undergroundRegionSchema } from "~/schema";
+import { regionSchema, siteSchema, undergroundRegionSchema } from "~/schema";
 
 const SUPPORTED_ELEMENTS = [
   // "artifact",
@@ -19,7 +19,7 @@ const SUPPORTED_ELEMENTS = [
   // "musical_form",
   // "poetic_form",
   "region",
-  // "site",
+  "site",
   "underground_region",
   // "written_content",
 ] as const;
@@ -33,9 +33,10 @@ const isSupportedElement = (
 
 const getSchema = (
   element: (typeof SUPPORTED_ELEMENTS)[number],
-): typeof regionSchema | typeof undergroundRegionSchema =>
+): typeof regionSchema | typeof siteSchema | typeof undergroundRegionSchema =>
   ({
     region: regionSchema,
+    site: siteSchema,
     underground_region: undergroundRegionSchema,
   })[element];
 

@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const regionSchema = z.object({
+export const regionSchema = z.strictObject({
   id: z.coerce.number().nonnegative(),
   name: z.string(),
   type: z.enum([
