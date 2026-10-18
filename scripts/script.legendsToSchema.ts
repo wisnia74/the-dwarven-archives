@@ -5,11 +5,10 @@ import { dirname } from "node:path";
 import ora from "ora";
 import prettier from "prettier";
 
-import { toMb, toSeconds } from "./formatters";
 import { SchemaBuilderFactory } from "./SchemaBuilder";
 import { type Script, theme } from "./Script";
 import { TypedXmlParser } from "./TypedXmlParser";
-import { measureExecutionTime } from "./utils";
+import { measureExecutionTime, toMb, toSeconds } from "./utils";
 import { XmlSanitizerStream } from "./XmlSanitizer";
 
 const exec: Script["exec"] = async ([filepath]) => {

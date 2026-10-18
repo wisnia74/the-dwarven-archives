@@ -6,9 +6,8 @@ import stream from "node:stream/promises";
 import zlib from "node:zlib";
 import ora from "ora";
 
-import { toMb, toSeconds } from "./formatters";
 import { type Script, theme } from "./Script";
-import { measureExecutionTime } from "./utils";
+import { measureExecutionTime, toMb, toSeconds } from "./utils";
 
 const exec: Script["exec"] = async ([filepath, stats]) => {
   const spinner = ora();
